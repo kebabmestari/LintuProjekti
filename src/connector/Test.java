@@ -1,8 +1,11 @@
 package connector;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.Scanner;
 
 public class Test {
 
+	
 	private static final String DB_URI="jdbc:mysql://localhost/testi";
 	private static String user="root";
 	private static String password="mysli";
@@ -11,7 +14,6 @@ public class Test {
 		Connection con =null;
 		Statement stm=null;
 		
-		// TODO Auto-generated method stub
 		try{
 			Class.forName("com.mysql.jdbc.Driver");
 			
@@ -20,8 +22,36 @@ public class Test {
 			stm=con.createStatement();
 			
 			String sql;
-			sql = "SELECT nimi FROM Lintu";
-		    ResultSet rs = stm.executeQuery(sql);
+			String linnut="";
+			try {
+				InputStream inp=Test.class.getResourceAsStream("linnut.csv");
+				Scanner scan=new Scanner(inp);
+				linnut="('"+scan.nextLine()+"')";
+				while (scan.hasNextLine()){
+					linnut=linnut+", ('"+scan.nextLine()+"')";
+				}
+				scan.close();
+				inp.close();
+				System.out.println(linnut);
+				
+				
+			} catch (Exception e) {
+				System.out.println("Tiedostoa ei löydy tai");
+				e.printStackTrace();
+			}
+			
+			sql="DELETE FROM lintu;";
+			stm.addBatch(sql);
+			
+			sql="INSERT INTO lintu VALUES "+linnut+";";
+			stm.addBatch(sql);
+			
+			int[] tulos= stm.executeBatch();
+			for (int i:tulos){
+				System.out.println(i);
+			}
+			sql = "SELECT * FROM lintu";
+			ResultSet rs = stm.executeQuery(sql);
 		    
 		    while(rs.next()){
 		         //Retrieve by column name
