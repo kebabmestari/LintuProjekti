@@ -2,6 +2,7 @@ package databaseconnection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -17,7 +18,10 @@ public class DB_connection {
 		DB_URI="jdbc:mysql://"+host.trim()+"/"+db_name.trim();
 		this.user=user;
 		this.password=password;
-		createConnection();
+		if (!createConnection()){
+			System.err.println("Yhteyttä ei voitu muodostaa");
+			//TODO Mitä sitten?
+		}
 	}
 	
 	public boolean createConnection(){
@@ -36,5 +40,14 @@ public class DB_connection {
 		}
 	}
 	
-	
+	public ResultSet searchBird(String wordBegin){
+		String sql="SELECT nimi FROM lintu WHERE nimi LIKE '"+wordBegin+"%';";
+		try {
+			return stm.executeQuery(sql);
+		} catch (SQLException e) {
+			System.err.println("Kysely lajeista ei toiminut");
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
