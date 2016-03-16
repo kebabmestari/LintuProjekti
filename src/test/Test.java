@@ -1,4 +1,4 @@
-package connector;
+package test;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Scanner;
@@ -40,6 +40,7 @@ public class Test {
 				e.printStackTrace();
 			}
 			
+			
 			sql="DELETE FROM lintu;";
 			stm.addBatch(sql);
 			
@@ -50,6 +51,7 @@ public class Test {
 			for (int i:tulos){
 				System.out.println(i);
 			}
+			
 			sql = "SELECT * FROM lintu";
 			ResultSet rs = stm.executeQuery(sql);
 		    
