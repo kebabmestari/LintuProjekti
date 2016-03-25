@@ -1,0 +1,128 @@
+@-webkit-keyframes bganim {
+    0%   {
+		background: url(http://im.mtv.fi/image/3126940/landscape16_9/1024/576/9ad2f9d750979418c3bc9324e31fb74f/oK/punarinta.jpg);
+		background-size: cover;
+    }
+    20%   {
+		background: url(http://im.mtv.fi/image/3126940/landscape16_9/1024/576/9ad2f9d750979418c3bc9324e31fb74f/oK/punarinta.jpg);
+		background-size: cover;
+    }
+    25%   {
+		background: url(http://im.mtv.fi/image/3126918/landscape16_9/1024/576/5d6815c7ac738790b76ba0c39d90efe6/uD/j-rripeippo.jpg);
+		background-size: cover;
+    }
+    80%   {
+		background: url(http://im.mtv.fi/image/3126918/landscape16_9/1024/576/5d6815c7ac738790b76ba0c39d90efe6/uD/j-rripeippo.jpg);
+		background-size: cover;
+    }
+    85%   {
+		background: url(http://www.kouvolansanomat.fi/f/0/09/big_20062474.jpg);
+		background-size: cover;
+    }
+    100%   {
+		background: url(http://www.kouvolansanomat.fi/f/0/09/big_20062474.jpg);
+		background-size: cover;
+    }
+} 
+
+#imgload{
+	display: none;
+}
+
+html,
+body{
+	height: 100%;
+}
+
+body{
+	font: 20px Montserrat, sans-serif;
+	line-height: 1.8;	
+}
+
+.bgimg{
+	background: url(http://im.mtv.fi/image/3126940/landscape16_9/1024/576/9ad2f9d750979418c3bc9324e31fb74f/oK/punarinta.jpg);
+	background-size: cover;
+	z-index: -1;
+	filter: blur(5px);
+	-webkit-filter: blur(5px);
+	display: block;
+	position: fixed;
+	margin: -15px -15px -15px -15px;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 100%;
+/*	animation-name: bganim;
+	animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;*/
+}
+
+.navbar{
+	letter-spacing: 5px;
+	font-size: 13px;
+	border: 0;
+	border-radius: 0;
+	padding-bottom: 20px;
+	color: #f5f6f7;
+}
+
+.navbar-nav li a{
+	color: #f5f6f7;
+	transition: all 0.2s;
+}
+
+.navbar-nav li a:hover{
+	color: cyan !important;
+}
+
+p{
+	font-size: 15px;
+}
+
+.container{
+	margin-top: 10%;
+	background-color: rgba(255,255,255,0.25) !important;
+	border-radius: 10px;
+	color: #000;
+	min-height: 400px;
+	position: relative;
+}
+
+.content{
+	position: relative;
+	min-height: 400px;
+}
+
+#formi{
+	display: table;
+	min-height: 400px;
+}
+
+#formi>form{
+	display: table-cell;
+	vertical-align: middle;
+}
+
+div.namiskat{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-around;
+}
+
+div.namiskat>input{
+	flex: 0 0 auto;
+}
+
+#rekisterointi, #rekisterointisuccess{
+	top: 30%;
+}
+
+#failmessage, #rekisterointisuccess{
+	display: none;
+}
+
+#rekisterointisuccess .alert{
+	margin: 0px;
+}

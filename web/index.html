@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- BootStrap -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+
+	<!-- jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+	<link rel="stylesheet" href="style.css">
+
+	<meta charset="UTF-8">
+	<title>Document</title>
+
+</head>
+<body>
+	<div id="imgload">
+		<img src="http://im.mtv.fi/image/3126940/landscape16_9/1024/576/9ad2f9d750979418c3bc9324e31fb74f/oK/punarinta.jpg">
+		<img src="http://im.mtv.fi/image/3126918/landscape16_9/1024/576/5d6815c7ac738790b76ba0c39d90efe6/uD/j-rripeippo.jpg">
+		<img src="http://www.kouvolansanomat.fi/f/0/09/big_20062474.jpg">
+		<img src="https://peda.net/varkaus/luttilan-koulu/am/el1/bige/kes%C3%A4inen-luonto/j%C3%A4rvi/gkk/hauki-on-petokala:file/download/c85d29681cd7f32b1de45873e3da1f77b7105e0c/kalat_hauki_shutterstock_128657603_peda.jpg">
+	</div>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="#" class="navbar-brand">LINTUJUTSKA</a>
+				<button type="button" class="navbar-toggle navbar-right" data-target="#navi" data-toggle="collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="collapse navbar-collapse" id="navi">
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#">link1</a></li>
+					<li><a href="#">link2</a></li>
+					<li><a href="#">link3</a></li>
+					<li><a href="#">link4</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="bgimg"></div>
+	<div class="panel container">
+		<div class="panel-body row content">
+			<div class="col-sm-4">
+				<h3>Lintutietokantajuttu</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas assumenda at quo obcaecati sint, possimus doloremque accusamus, nulla explicabo magni? Possimus, quas.</p>
+			</div>
+			<div class="col-sm-8" id="formi">
+				<form role="form" class="form-horizontal">
+					<div class="form-group">
+						<label for="nimi" class="control-label col-sm-5">Käyttäjätunnus:</label>
+						<div class="col-sm-7">
+							<input type="text" class="form-control" id="nimi" placeholder="Nimi" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="pasw" class="control-label col-sm-5">Salasana:</label>
+						<div class="col-sm-7">
+							<input type="password" class="form-control" id="pasw" placeholder="Salasana" required>
+						</div>
+					</div>
+					<div class="col-sm-6"></div>
+					<div class="form-group namiskat col-sm-6">
+						<input type="button" value="Kirjaudu sisään" class="btn btn-md btn-success">
+						<input type="button" value="Uusi tunnus" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#rekisterointi">
+					</div>
+				</form>
+				<!-- Rekisteröinti-ikkuna -->
+				<div id="rekisterointi" class="modal fade" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h3>Rekisteröidy palveluun</h3>
+							</div>
+							<div class="modal-body">
+								<form role="form">
+									<div class="form-group">
+										<label for="reknimi">Käyttäjänimi:</label>
+										<input type="text" id="reknimi" class="form-control" placeholder="Käyttäjätunnus" required>
+									</div>
+									<div class="form-group">
+										<label for="reksalasana">Salasana:</label>
+										<input type="password" class="form-control" id="reksalasana" placeholder="Salasana" required>
+										<input type="password" class="form-control" id="reksalasana2" placeholder="Salasana uudelleen" required>
+									</div>
+									<div class="alert alert-danger" id="failmessage"></div>
+									<div class="form-group">
+										<a href="#" class="btn btn-primary btn-block" id="rekbutton">Rekisteröi tunnus</a>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Rekisteröinnin onnistumisviesti -->
+				<div id="rekisterointisuccess" class="modal fade" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="alert alert-success">
+								<p>Rekisteröinti onnistui!</p>
+								<p>Voit nyt kirjautua sisään</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- JavaScript -->
+	<script src="skriptit.js"></script>
+</body>
+</html>
