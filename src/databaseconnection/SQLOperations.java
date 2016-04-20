@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import databaseobjects.Kala;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
@@ -166,18 +167,6 @@ public class SQLOperations {
 		}
 	}
 	
-	public static void insertKunta(Kunta town, Statement stm) {
-		if (isAlphabetic(town.getNimi())){
-			String sql="INSERT INTO kunta(nimi) VALUES ('"+town.getNimi()+"');";
-			try {
-				stm.executeUpdate(sql);
-			} catch (SQLException e) {
-				System.out.println("Kunnan lisäys ei toimi tai nimi ei uniikki");
-				e.printStackTrace();
-			}
-		}		
-	}
-	
 	public static void insertKunta(ArrayList<Kunta> townArray, Statement stm, Connection con) {
 		if(townArray.size()>0){
 			townArray=removeDuplicateTowns(townArray, con);
@@ -244,6 +233,79 @@ public class SQLOperations {
 			} catch (SQLException e) {
 				psql.close();
 				System.err.println("Kysely kunnista ei toiminut");
+				e.printStackTrace();
+				return null;
+			}	
+		} catch (SQLException e1) {
+			System.out.println("virheellinen SQL");
+			e1.printStackTrace();
+			return null;
+		}
+	}
+	public static void insertFish(ArrayList<Kala> fishArray, Statement stm, Connection con) {
+		if(fishArray.size()>0){
+			fishArray=removeDuplicateFish(fishArray, con);
+			if(fishArray.size()>0){
+				Kala first=fishArray.get(0);
+				String fish="('"+first.getNimi()+"')";
+				for (int i=1;i<fishArray.size();i++){
+					fish=fish+",('"+fishArray.get(i).getNimi()+"')";
+				}
+				try {
+					String sql="INSERT INTO kala(nimi) VALUES "+fish+";";
+					System.out.println(sql);
+					stm.executeUpdate(sql);
+				} catch (SQLException e) {
+					System.out.println("SQL-ongelma yritettäessä lisätä kuntia");
+					e.printStackTrace();
+				}
+			}else{
+				System.out.println("Kaikki kalat olivat jo tietokannassa, ei mitään lisättävää");
+			}
+		}else{
+			System.out.println("Kalalista oli tyhjä, ei mitään lisättävää");
+		}
+	}
+	private static ArrayList<Kala> removeDuplicateFish(ArrayList<Kala> fishArray, Connection con) {
+		for(int i=0;i<fishArray.size();i++){
+			Kala fish=fishArray.get(i);
+			if(isFishAlreadyInTable(fish, con)){
+				fishArray.remove(i);
+				i--;
+			}
+		}
+		return fishArray;
+	}
+	private static boolean isFishAlreadyInTable(Kala fish, Connection con) {
+		ResultSet rs=searchFish(fish.getNimi(), con);
+		try {
+			while(rs.next()){
+				String nimi  = rs.getString("nimi");
+				if(nimi.equals(fish.getNimi())){
+					rs.close();
+					return true;
+				}
+			}
+			rs.close();
+			return false;
+		} catch (SQLException e1) {
+			System.out.println("SQL-ongelma kuntaa etsiessä");
+			e1.printStackTrace();
+		}
+		return false;
+	}
+	private static ResultSet searchFish(String fishBegin, Connection con) {
+		PreparedStatement psql=null;
+		String psqlStatement="SELECT nimi FROM kala WHERE nimi LIKE ?;";
+		try {
+			psql=con.prepareStatement(psqlStatement);
+			psql.setString(1, fishBegin+"%");
+			try {
+				ResultSet rs=psql.executeQuery();
+				return rs;
+			} catch (SQLException e) {
+				psql.close();
+				System.err.println("Kysely kaloista ei toiminut");
 				e.printStackTrace();
 				return null;
 			}	

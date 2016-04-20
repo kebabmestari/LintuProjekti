@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import databaseobjects.Kala;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
@@ -99,10 +100,22 @@ public class DB_connection {
 	}
 
 	public void insertKunta(Kunta town) {
-		SQLOperations.insertKunta(town, stm);
+		ArrayList<Kunta> townArray=new ArrayList<>();
+		townArray.add(town);
+		SQLOperations.insertKunta(townArray, stm, con);
 	}
 
 	public void insertKunta(ArrayList<Kunta> towns) {
 		SQLOperations.insertKunta(towns, stm, con);
+	}
+
+	public void insertFish(Kala fish){
+		ArrayList<Kala> fishArray=new ArrayList<>();
+		fishArray.add(fish);
+		SQLOperations.insertFish(fishArray, stm, con);
+	}
+	
+	public void insertFish(ArrayList<Kala> fishArray) {
+		SQLOperations.insertFish(fishArray, stm, con);
 	}
 }
