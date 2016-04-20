@@ -89,6 +89,8 @@ CREATE TABLE IF NOT EXISTS `tk2`.`lintuhavainto` (
   `paikka` VARCHAR(255) NULL DEFAULT 'Ei tiedossa',
   `id` INT NOT NULL AUTO_INCREMENT,
   `havaitsija` INT NOT NULL,
+  `eko` BOOLEAN NULL DEFAULT FALSE,
+  `sponde` BOOLEAN NULL DEFAULT FALSE,
   PRIMARY KEY (`id`),
   INDEX `const_havaitsija_idx1` (`havaitsija` ASC),
   INDEX `const_paikka_idx1` (`paikka` ASC),
