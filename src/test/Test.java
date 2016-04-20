@@ -1,72 +1,96 @@
 package test;
 import java.io.InputStream;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import databaseconnection.DB_connection;
+import databaseconnection.SQLOperations;
+import databaseobjects.Lintu;
 
 public class Test {
 
-	
-	private static final String DB_URI="jdbc:mysql://localhost/testi";
 	private static String user="root";
 	private static String password="mysli";
 	
-	public static void main(String[] args) {
-			DB_connection connection=new DB_connection("localhost", "testi", user, password);
-			
-			try{
-				
-				ResultSet rs = connection.searchBird("k");
-			    
-			    while(rs.next()){
-			         //Retrieve by column name
-			         String nimi  = rs.getString("nimi");
-			         
-			         System.out.println("Nimi: " +nimi);
-			    }
-
-			    rs.close();
-			  
-		
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	public static ArrayList<Lintu> lueLinnut(boolean debug){
+		ArrayList<Lintu> linnut=new ArrayList<>();
+		try {
+			InputStream inp=Test.class.getResourceAsStream("linnut.csv");
+			Scanner scan=new Scanner(inp);
+			while(scan.hasNextLine()){
+				linnut.add(new Lintu(scan.nextLine()));
 			}
+			scan.close();
+			inp.close();
+			if(debug)System.out.println("ArrayListan pituus: "+linnut.size());
+			return linnut;
 			
-		/*	String sql;
-			String linnut="";
-			try {
-				InputStream inp=Test.class.getResourceAsStream("linnut.csv");
-				Scanner scan=new Scanner(inp);
-				linnut="('"+scan.nextLine()+"')";
-				while (scan.hasNextLine()){
-					linnut=linnut+", ('"+scan.nextLine()+"')";
-				}
-				scan.close();
-				inp.close();
-				System.out.println(linnut);
-				
-				
-			} catch (Exception e) {
-				System.out.println("Tiedostoa ei löydy tai");
-				e.printStackTrace();
-			}
-			
-			
-			sql="DELETE FROM lintu;";
-	//		stm.addBatch(sql);
-			
-			sql="INSERT INTO lintu VALUES "+linnut+";";
-	//		stm.addBatch(sql);
-			
-	/*		int[] tulos= stm.executeBatch();
-			for (int i:tulos){
-				System.out.println(i);
-			}
-			
-		*/	
+		} catch (Exception e) {
+			System.out.println("Tiedostoa ei löydy tai");
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
+	public static void lisaaLinnut(ArrayList<Lintu> lintulista, DB_connection connection){
+		connection.addBird(lintulista);
+	}
+	
+	public static void etsiLinnut(DB_connection connection, String alkuosa) {
+		try{
+			//	Scanner scan =new Scanner(System.in);
+			//	while (scan.hasNext()){
+			//		String lintu= scan.next();
+					ResultSet rs = connection.searchBird(alkuosa);
+						
+					while(rs.next()){
+							//Retrieve by column name
+						String nimi  = rs.getString("nimi");
+						//int id=rs.getInt("id");
+						System.out.println("Nimi: " +nimi+" id tuntematon");
+					}
 
+					rs.close();
+				//	}
+				//	scan.close();		
+			} catch (SQLException e) {
+					e.printStackTrace();
+			}
+	}
+	
+	public static void main(String[] args) {
+		DB_connection connection=new DB_connection("localhost", "tk2", user, password);
+		
+	//	lisaaLinnut(lueLinnut(true), connection);
+		arrayTest(connection.getConnection());
+	}
+	
+	public static void arrayTest(Connection con) {
+		ArrayList<Lintu> lista=lueLinnut(true);
+	//	lista.add(new Lintu("tilhi"));
+		printArray(lista);
+	//	lista.add(new Lintu("talitiainen"));
+	//	lista.add(new Lintu("varis"));
+	//	lista.add(new Lintu("kalahuuhkaja"));
+		printArray(lista);
+		printIfExsists(lista, con);
+		lista=SQLOperations.removeDuplicateBirds(lista, con);
+		printIfExsists(lista, con);
+		printArray(lista);
+	}
+	
+	public static void printIfExsists(ArrayList<Lintu> lista, Connection con) {
+		for(Lintu l: lista){
+			System.out.println(SQLOperations.isBirdAlreadyInTable(l, con));
+		}
+	}
+
+	public static void printArray(ArrayList<Lintu> lista) {
+		System.out.print("[");
+		for(Lintu l: lista){
+			System.out.print("( "+l.getNimi()+","+l.getYleisyys()+"),");
+		}
+		System.out.println("] Size:"+lista.size());
+	}
 }

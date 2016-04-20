@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+
+import databaseobjects.Lintu;
 
 public class DB_connection {
 	private final String DB_URI;
@@ -40,14 +43,31 @@ public class DB_connection {
 		}
 	}
 	
-	public ResultSet searchBird(String wordBegin){
-		String sql="SELECT nimi FROM lintu WHERE nimi LIKE '"+wordBegin+"%';";
-		try {
-			return stm.executeQuery(sql);
-		} catch (SQLException e) {
-			System.err.println("Kysely lajeista ei toiminut");
-			e.printStackTrace();
-			return null;
-		}
+	/**
+	 * Etsii linnuista vaihtoehdot nimen alun perusteella,
+	 * palauttaa lajit yleisyysj‰rjestyksess‰
+	 * @param wordBegin, linnun nimen alku
+	 * @return lista sopivista linnuista, pelk‰t nimet
+	 */
+	public ResultSet searchBird(String wordBegin){	
+		return SQLOperations.searchBird(wordBegin, con);
+	}
+	
+	/**
+	 * Lintujen lis‰ys, id autogeneroidaan
+	 * Lis‰t‰‰n vain ne linnut, jotka puuttuivat tietokannasta
+	 * @param birdArray on lista lis‰tt‰vist‰ linnuista
+	 */
+	public void addBird(ArrayList<Lintu> birdArray){
+		SQLOperations.addBird(birdArray, stm, con);
+	}
+	
+	/**
+	 * Poista ehdottomasti, kun kaikki toimii!!!!!!!
+	 * Vain testausta varten
+	 * @return
+	 */
+	public Connection getConnection(){
+		return con;
 	}
 }
