@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 import databaseconnection.DB_connection;
 import databaseconnection.SQLOperations;
+import databaseobjects.Kayttaja;
+import databaseobjects.Kunta;
 import databaseobjects.Lintu;
 
 public class Test {
@@ -34,7 +36,7 @@ public class Test {
 	}
 	
 	public static void lisaaLinnut(ArrayList<Lintu> lintulista, DB_connection connection){
-		connection.addBird(lintulista);
+		connection.insertBird(lintulista);
 	}
 	
 	public static void etsiLinnut(DB_connection connection, String alkuosa) {
@@ -59,11 +61,26 @@ public class Test {
 			}
 	}
 	
+	public static void testikäyttäjä(DB_connection connection) {
+		Kayttaja josia=new Kayttaja("Josia", "kovinSalainen");
+		connection.insertUser(josia);
+	}
+	
+	public static void testikunta(DB_connection connection) {
+		ArrayList<Kunta> kunnat=new ArrayList<>();
+		kunnat.add(new Kunta("Raisio"));
+		kunnat.add(new Kunta("Helsinki"));
+		connection.insertKunta(kunnat);
+	}
+	
 	public static void main(String[] args) {
 		DB_connection connection=new DB_connection("localhost", "tk2", user, password);
-		
+		testikunta(connection);
+	//	testikäyttäjä(connection);
+
 	//	lisaaLinnut(lueLinnut(true), connection);
-		arrayTest(connection.getConnection());
+	//	arrayTest(connection.getConnection());
+		connection.disconnect();
 	}
 	
 	public static void arrayTest(Connection con) {

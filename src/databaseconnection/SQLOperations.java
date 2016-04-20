@@ -7,6 +7,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import databaseobjects.Kayttaja;
+import databaseobjects.Kunta;
 import databaseobjects.Lintu;
 
 import java.sql.PreparedStatement;
@@ -27,7 +29,7 @@ public class SQLOperations {
 		} 
 	}
 	/**
-	 * Toimii
+	 * Onko annettu merkkijono akkosnumeerinen
 	 * @param s
 	 * @return onko aakkosnumeerinen
 	 */
@@ -47,8 +49,10 @@ public class SQLOperations {
 			psql=conn.prepareStatement(psqlStatement);
 			psql.setString(1, wordBegin+"%");
 			try {
-				return psql.executeQuery();
+				ResultSet rs=psql.executeQuery();
+				return rs;
 			} catch (SQLException e) {
+				psql.close();
 				System.err.println("Kysely lajeista ei toiminut");
 				e.printStackTrace();
 				return null;
@@ -76,7 +80,7 @@ public class SQLOperations {
 	 * @param birdArray, lintulista
 	 * @param stm sql Statement
 	 */
-	public static void addBird(ArrayList<Lintu> birdArray, Statement stm, Connection con){
+	public static void insertBird(ArrayList<Lintu> birdArray, Statement stm, Connection con){
 		if(birdArray.size()>0){
 			birdArray=removeDuplicateBirds(birdArray, con);
 			if(birdArray.size()>0){
@@ -100,6 +104,7 @@ public class SQLOperations {
 			System.out.println("Lintulista oli tyhj‰, ei mit‰‰n lis‰tt‰v‰‰");
 		}
 	}
+	
 	/**
 	 * Tutkitaan, onko taulukossa jo
 	 * @param bird, jota tutkitaan
@@ -124,7 +129,6 @@ public class SQLOperations {
 		}
 		return false;
 	}
-	
 	/**
 	 * Poistetaan lintulistasta kaikki ne niment, jotka esiintyv‰t jo tietokannassa
 	 * AE: birdArray<>null
@@ -142,5 +146,111 @@ public class SQLOperations {
 			}
 		}
 		return birdArray;
+	}
+	
+	/**
+	 * Lis‰‰ parametrina annetun k‰ytt‰j‰n
+	 * @param user, joka aiotaan lis‰t‰
+	 * @param stm
+	 */
+	public static void insertUser(Kayttaja user, Statement stm){
+		if (isAlphabetic(user.getNimi()) && isAlphaNumeric(user.getSalasana())){
+			//TODO tarkista, onko k‰ytt‰j‰nimi kelvollinen eli uniikki
+			String sql="INSERT INTO kayttaja(nimi,salasana) VALUES ('"+user.getNimi()+"','"+user.getSalasana()+"');";
+			try {
+				stm.executeUpdate(sql);
+			} catch (SQLException e) {
+				System.out.println("Ainaki tulee mieleen et k‰ytt‰j‰nimi voi olla jo varattu...");
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void insertKunta(Kunta town, Statement stm) {
+		if (isAlphabetic(town.getNimi())){
+			String sql="INSERT INTO kunta(nimi) VALUES ('"+town.getNimi()+"');";
+			try {
+				stm.executeUpdate(sql);
+			} catch (SQLException e) {
+				System.out.println("Kunnan lis‰ys ei toimi tai nimi ei uniikki");
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public static void insertKunta(ArrayList<Kunta> townArray, Statement stm, Connection con) {
+		if(townArray.size()>0){
+			townArray=removeDuplicateTowns(townArray, con);
+			if(townArray.size()>0){
+				Kunta first=townArray.get(0);
+				String towns="('"+first.getNimi()+"')";
+				for (int i=1;i<townArray.size();i++){
+					towns=towns+",('"+townArray.get(i).getNimi()+"')";
+				}
+				try {
+					String sql="INSERT INTO kunta(nimi) VALUES "+towns+";";
+					System.out.println(sql);
+					stm.executeUpdate(sql);
+				} catch (SQLException e) {
+					System.out.println("SQL-ongelma yritett‰ess‰ lis‰t‰ kuntia");
+					e.printStackTrace();
+				}
+			}else{
+				System.out.println("Kaikki kunnat olivat jo tietokannassa, ei mit‰‰n lis‰tt‰v‰‰");
+			}
+		}else{
+			System.out.println("Kuntalista oli tyhj‰, ei mit‰‰n lis‰tt‰v‰‰");
+		}
+	}
+	
+	private static ArrayList<Kunta> removeDuplicateTowns(ArrayList<Kunta> townArray, Connection con) {
+		for(int i=0;i<townArray.size();i++){
+			Kunta town=townArray.get(i);
+			if(isTownAlreadyInTable(town, con)){
+				townArray.remove(i);
+				i--;
+			}
+		}
+		return townArray;
+	}
+	private static boolean isTownAlreadyInTable(Kunta town, Connection con) {
+		ResultSet rs=searchTown(town.getNimi(), con);
+		try {
+			while(rs.next()){
+				String nimi  = rs.getString("nimi");
+				if(nimi.equals(town.getNimi())){
+					rs.close();
+					return true;
+				}
+			}
+			rs.close();
+			return false;
+		} catch (SQLException e1) {
+			System.out.println("SQL-ongelma kuntaa etsiess‰");
+			e1.printStackTrace();
+		}
+		return false;
+	}
+	
+	private static ResultSet searchTown(String townBegin, Connection con) {
+		PreparedStatement psql=null;
+		String psqlStatement="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
+		try {
+			psql=con.prepareStatement(psqlStatement);
+			psql.setString(1, townBegin+"%");
+			try {
+				ResultSet rs=psql.executeQuery();
+				return rs;
+			} catch (SQLException e) {
+				psql.close();
+				System.err.println("Kysely kunnista ei toiminut");
+				e.printStackTrace();
+				return null;
+			}	
+		} catch (SQLException e1) {
+			System.out.println("virheellinen SQL");
+			e1.printStackTrace();
+			return null;
+		}
 	}
 }

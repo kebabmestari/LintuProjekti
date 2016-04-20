@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import databaseobjects.Kayttaja;
+import databaseobjects.Kunta;
 import databaseobjects.Lintu;
 
 public class DB_connection {
@@ -43,6 +45,22 @@ public class DB_connection {
 		}
 	}
 	
+	public boolean disconnect(){
+		try {
+			stm.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		try {
+			con.close();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	/**
 	 * Etsii linnuista vaihtoehdot nimen alun perusteella,
 	 * palauttaa lajit yleisyysj‰rjestyksess‰
@@ -58,8 +76,16 @@ public class DB_connection {
 	 * Lis‰t‰‰n vain ne linnut, jotka puuttuivat tietokannasta
 	 * @param birdArray on lista lis‰tt‰vist‰ linnuista
 	 */
-	public void addBird(ArrayList<Lintu> birdArray){
-		SQLOperations.addBird(birdArray, stm, con);
+	public void insertBird(ArrayList<Lintu> birdArray){
+		SQLOperations.insertBird(birdArray, stm, con);
+	}
+	
+	/**
+	 * Lis‰‰ parametrina annetun k‰ytt‰j‰n
+	 * @param user, joka aiotaan lis‰t‰
+	 */
+	public void insertUser(Kayttaja user){
+		SQLOperations.insertUser(user, stm);
 	}
 	
 	/**
@@ -68,6 +94,15 @@ public class DB_connection {
 	 * @return
 	 */
 	public Connection getConnection(){
+		//TODO poista kun kaikki toimii
 		return con;
+	}
+
+	public void insertKunta(Kunta town) {
+		SQLOperations.insertKunta(town, stm);
+	}
+
+	public void insertKunta(ArrayList<Kunta> towns) {
+		SQLOperations.insertKunta(towns, stm, con);
 	}
 }

@@ -8,7 +8,11 @@ public class Kayttaja {
 	public Kayttaja(int id, String nimi, String salasana) {
 		this.id = id;
 		this.nimi = nimi;
-		this.salasana = salasana;
+		this.salasana = kryptaa(salasana);
+	}
+	private String kryptaa(String kryptattava){
+		//TODO toteuta kryptaus ja muista pakettien salaus myös verkossa
+		return kryptattava;
 	}
 	public Kayttaja(String nimi, String salasana) {
 		this.nimi = nimi;
