@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import databaseobjects.Insertable;
 import databaseobjects.Kala;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
@@ -43,17 +44,14 @@ public class SQLOperations {
 		} 
 	}
 	
-	public static ResultSet searchBird(String wordBegin, Connection conn){
-		PreparedStatement psql=null;
-		String psqlStatement="SELECT nimi FROM lintu WHERE nimi LIKE ? ORDER BY yleisyys;";
+	public static ResultSet searchBird(String wordBegin, PreparedStatement pstm){
 		try {
-			psql=conn.prepareStatement(psqlStatement);
-			psql.setString(1, wordBegin+"%");
+			pstm.setString(1, wordBegin+"%");
 			try {
-				ResultSet rs=psql.executeQuery();
+				ResultSet rs=pstm.executeQuery();
 				return rs;
 			} catch (SQLException e) {
-				psql.close();
+				pstm.close();
 				System.err.println("Kysely lajeista ei toiminut");
 				e.printStackTrace();
 				return null;
@@ -106,31 +104,9 @@ public class SQLOperations {
 		}
 	}
 	
+	
 	/**
-	 * Tutkitaan, onko taulukossa jo
-	 * @param bird, jota tutkitaan
-	 * @param con, tietokannan yhteysolio 
-	 * @return löytyikö lintua tietokannasta
-	 */
-	public static boolean isBirdAlreadyInTable(Lintu bird, Connection con){
-		ResultSet rs=searchBird(bird.getNimi(), con);
-		try {
-			while(rs.next()){
-				String nimi  = rs.getString("nimi");
-				if(nimi.equals(bird.getNimi())){
-					rs.close();
-					return true;
-				}
-			}
-			rs.close();
-			return false;
-		} catch (SQLException e1) {
-			System.out.println("SQL-ongelma");
-			e1.printStackTrace();
-		}
-		return false;
-	}
-	/**
+	 * Turha
 	 * Poistetaan lintulistasta kaikki ne niment, jotka esiintyvät jo tietokannassa
 	 * AE: birdArray<>null
 	 * Loppuehto: lintulistasta ei löydy yhtään lintua, joka olisi jo tietokannassa
@@ -139,13 +115,7 @@ public class SQLOperations {
 	 * @return putsattu lintulista
 	 */
 	public static ArrayList<Lintu> removeDuplicateBirds(ArrayList<Lintu> birdArray, Connection con){
-		for(int i=0;i<birdArray.size();i++){
-			Lintu bird=birdArray.get(i);
-			if(isBirdAlreadyInTable(bird, con)){
-				birdArray.remove(i);
-				i--;
-			}
-		}
+		
 		return birdArray;
 	}
 	
@@ -167,58 +137,62 @@ public class SQLOperations {
 		}
 	}
 	
-	public static void insertKunta(ArrayList<Kunta> townArray, Statement stm, Connection con) {
-		if(townArray.size()>0){
-			townArray=removeDuplicateTowns(townArray, con);
-			if(townArray.size()>0){
-				Kunta first=townArray.get(0);
-				String towns="('"+first.getNimi()+"')";
-				for (int i=1;i<townArray.size();i++){
-					towns=towns+",('"+townArray.get(i).getNimi()+"')";
+	public static void insertObject(ArrayList<Insertable> insertableArray, Connection con) {
+		if(insertableArray.size()>0){
+			insertableArray=removeDuplicateInsertables(insertableArray, con);
+			if(insertableArray.size()>0){
+				Insertable first=insertableArray.get(0);
+				String insertables=first.toInsertableString();
+				for (int i=1;i<insertableArray.size();i++){
+					insertables=insertables+","+insertableArray.get(i).toInsertableString();
 				}
 				try {
-					String sql="INSERT INTO kunta(nimi) VALUES "+towns+";";
+					String sql="INSERT INTO "+insertableArray.get(0).toInsertHeader()+" VALUES "+insertables+";";
 					System.out.println(sql);
+					Statement stm=con.createStatement();
 					stm.executeUpdate(sql);
 				} catch (SQLException e) {
-					System.out.println("SQL-ongelma yritettäessä lisätä kuntia");
+					System.out.println("SQL-ongelma yritettäessä lisätä tyyppiä "+insertableArray.get(0).getTableName());
 					e.printStackTrace();
 				}
 			}else{
-				System.out.println("Kaikki kunnat olivat jo tietokannassa, ei mitään lisättävää");
+				System.out.println("Kaikki esiintymät olivat jo tietokannassa, ei mitään lisättävää");
 			}
 		}else{
-			System.out.println("Kuntalista oli tyhjä, ei mitään lisättävää");
+			System.out.println("Tyhjä lista, ei mitään lisättävää");
 		}
 	}
 	
-	private static ArrayList<Kunta> removeDuplicateTowns(ArrayList<Kunta> townArray, Connection con) {
-		for(int i=0;i<townArray.size();i++){
-			Kunta town=townArray.get(i);
-			if(isTownAlreadyInTable(town, con)){
-				townArray.remove(i);
+	private static ArrayList<Insertable> removeDuplicateInsertables(ArrayList<Insertable> insertableArray, Connection con) {
+		for(int i=0;i<insertableArray.size();i++){
+			Insertable insertable=insertableArray.get(i);
+			if(isInsrtableAlreadyInTable(insertable, con)){
+				insertableArray.remove(i);
 				i--;
 			}
 		}
-		return townArray;
+		return insertableArray;
 	}
-	private static boolean isTownAlreadyInTable(Kunta town, Connection con) {
-		ResultSet rs=searchTown(town.getNimi(), con);
-		try {
-			while(rs.next()){
-				String nimi  = rs.getString("nimi");
-				if(nimi.equals(town.getNimi())){
-					rs.close();
-					return true;
-				}
+	private static boolean isInsrtableAlreadyInTable(Insertable insertable, Connection con) {
+		try{
+			String sql="SELECT * FROM "+insertable.getTableName()+" WHERE nimi=?;";
+			PreparedStatement pstmt=con.prepareStatement(sql);
+			pstmt.setString(1, insertable.getNimi());
+			ResultSet rs=pstmt.executeQuery();
+			if(rs.next()){
+				rs.close();
+				pstmt.close();
+				return true;
 			}
 			rs.close();
+			pstmt.close();
 			return false;
 		} catch (SQLException e1) {
-			System.out.println("SQL-ongelma kuntaa etsiessä");
+			System.out.println("SQL-ongelma etsiessä tyyppiä "+insertable.getTableName());
 			e1.printStackTrace();
+			System.exit(-1);
 		}
-		return false;
+		return true;
 	}
 	
 	private static ResultSet searchTown(String townBegin, Connection con) {
@@ -289,7 +263,7 @@ public class SQLOperations {
 			rs.close();
 			return false;
 		} catch (SQLException e1) {
-			System.out.println("SQL-ongelma kuntaa etsiessä");
+			System.out.println("SQL-ongelma kalaa etsiessä");
 			e1.printStackTrace();
 		}
 		return false;

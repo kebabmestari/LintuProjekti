@@ -1,6 +1,6 @@
 package databaseobjects;
 
-public class Lintu {
+public class Lintu implements Insertable{
 	private int id;
 	private String nimi;
 	private int yleisyys;
@@ -16,6 +16,7 @@ public class Lintu {
 		yleisyys=1;
 	}
 
+	@Override
 	public String getNimi() {
 		return nimi;
 	}
@@ -34,5 +35,20 @@ public class Lintu {
 
 	public int getId() {
 		return id;
+	}
+
+	@Override
+	public String toInsertableString() {
+		return "('"+nimi+"','"+yleisyys+"')";
+	}
+
+	@Override
+	public String toInsertHeader() {
+		return "lintu(nimi,yleisyys)";
+	}
+
+	@Override
+	public String getTableName() {
+		return "lintu";
 	}
 }

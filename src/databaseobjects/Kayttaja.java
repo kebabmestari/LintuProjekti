@@ -1,6 +1,6 @@
 package databaseobjects;
 
-public class Kayttaja {
+public class Kayttaja implements Insertable{
 	private int id;
 	private String nimi;
 	private String salasana;
@@ -21,11 +21,29 @@ public class Kayttaja {
 	public int getId() {
 		return id;
 	}
+	
+	public String getSalasana() {
+		return salasana;
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	@Override
 	public String getNimi() {
 		return nimi;
 	}
-	public String getSalasana() {
-		return salasana;
+	@Override
+	public String toInsertableString() {
+		return "('"+nimi+"','"+salasana+"')";
+	}
+	@Override
+	public String toInsertHeader() {
+		return "kayttaja(nimi,salasana)";
+	}
+	@Override
+	public String getTableName() {
+		return "kayttaja";
 	}
 	
 }

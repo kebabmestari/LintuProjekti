@@ -1,6 +1,6 @@
 package databaseobjects;
 
-public class Kala {
+public class Kala implements Insertable{
 	private int id;
 	private String nimi;
 	
@@ -13,6 +13,7 @@ public class Kala {
 		this.nimi = nimi;
 	}
 
+	@Override
 	public String getNimi() {
 		return nimi;
 	}
@@ -22,5 +23,20 @@ public class Kala {
 	
 	public int getId(){
 		return id;
+	}
+
+	@Override
+	public String toInsertableString() {
+		return "('"+nimi+"')";
+	}
+
+	@Override
+	public String toInsertHeader() {
+		return "kala(nimi)";
+	}
+
+	@Override
+	public String getTableName() {
+		return "kala";
 	}
 }

@@ -9,6 +9,7 @@ import databaseconnection.SQLOperations;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
+import databaseobjects.Insertable;
 import databaseobjects.Kala;
 
 public class Test {
@@ -21,9 +22,9 @@ public class Test {
 	//	testikunta(connection); toimii
 	//	testikäyttäjä(connection); toimii
 	
-	//	lisaaLinnut(lueLinnut(true), connection); toimii
-	//	arrayTest(connection.getConnection()); toimii
-	//	lisaaKunnat(lueKunnat(true), connection); toimii
+		lisaaLinnut(lueLinnut(true), connection); //toimii
+	//	arrayTest(connection.getConnection()); //toimii
+		lisaaKunnat(lueKunnat(true), connection); //toimii
 		lisaaKalat(lueKalat(true),connection);
 		connection.disconnect();
 	}
@@ -99,38 +100,30 @@ public class Test {
 		}
 	}
 	
-	public static void lisaaKunnat(ArrayList<Kunta> kunnat, DB_connection connection){
-		connection.insertKunta(kunnat);
+	public static void lisaaKalat(ArrayList<Kala> kalalista, DB_connection connection){
+		connection.insertFish(kalalista);
 	}
-	
+
 	public static void lisaaLinnut(ArrayList<Lintu> lintulista, DB_connection connection){
 		connection.insertBird(lintulista);
 	}
-	
-	public static void lisaaKalat(ArrayList<Kala> kalalista, DB_connection connection){
-		connection.insertFish(kalalista);
+
+	public static void lisaaKunnat(ArrayList<Kunta> kunnat, DB_connection connection){
+		connection.insertTown(kunnat);
 	}
 	
 	public static void etsiLinnut(DB_connection connection, String alkuosa) {
 		try{
-			//	Scanner scan =new Scanner(System.in);
-			//	while (scan.hasNext()){
-			//		String lintu= scan.next();
-					ResultSet rs = connection.searchBird(alkuosa);
-						
-					while(rs.next()){
-							//Retrieve by column name
-						String nimi  = rs.getString("nimi");
-						//int id=rs.getInt("id");
-						System.out.println("Nimi: " +nimi+" id tuntematon");
-					}
-
-					rs.close();
-				//	}
-				//	scan.close();		
-			} catch (SQLException e) {
-					e.printStackTrace();
+			ResultSet rs = connection.searchBird(alkuosa);
+			while(rs.next()){
+				String nimi  = rs.getString("nimi");
+				//int id=rs.getInt("id");
+				System.out.println("Nimi: " +nimi+" id tuntematon");
 			}
+			rs.close();		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void testikäyttäjä(DB_connection connection) {
@@ -142,28 +135,9 @@ public class Test {
 		ArrayList<Kunta> kunnat=new ArrayList<>();
 		kunnat.add(new Kunta("Raisio"));
 		kunnat.add(new Kunta("Helsinki"));
-		connection.insertKunta(kunnat);
+//		connection.insertKunta(kunnat);
 	}
 	
-	public static void arrayTest(Connection con) {
-		ArrayList<Lintu> lista=lueLinnut(true);
-	//	lista.add(new Lintu("tilhi"));
-		printArray(lista);
-	//	lista.add(new Lintu("talitiainen"));
-	//	lista.add(new Lintu("varis"));
-	//	lista.add(new Lintu("kalahuuhkaja"));
-		printArray(lista);
-		printIfExsists(lista, con);
-		lista=SQLOperations.removeDuplicateBirds(lista, con);
-		printIfExsists(lista, con);
-		printArray(lista);
-	}
-	
-	public static void printIfExsists(ArrayList<Lintu> lista, Connection con) {
-		for(Lintu l: lista){
-			System.out.println(SQLOperations.isBirdAlreadyInTable(l, con));
-		}
-	}
 
 	public static void printBirdArray(ArrayList<Lintu> lista) {
 		System.out.print("[");
@@ -176,7 +150,7 @@ public class Test {
 	public static void printArray(ArrayList<?> lista) {
 		System.out.print("[");
 		for(Object l: lista){
-			System.out.print("("+((Kala) l).getNimi()+"), "); // vaihda vain castattavaa oliota tarpeen mukaan
+			System.out.print("("+((Insertable) l).getNimi()+"), ");
 		}
 		System.out.println("] Size:"+lista.size());
 	}
