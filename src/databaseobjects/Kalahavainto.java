@@ -6,8 +6,9 @@ public class Kalahavainto {
 	private int pituus;
 	private int kalaid;
 	private int havaitsija;
+	private Paivamaara pvm;
 	
-	public Kalahavainto(int id, String paikka, int pituus, int kalaid, int havaitsija) {
+	public Kalahavainto(int id, String paikka, int pituus, int kalaid, int havaitsija, Paivamaara pvm) {
 		this.id = id;
 		this.paikka = paikka;
 		this.pituus = pituus;
@@ -15,7 +16,7 @@ public class Kalahavainto {
 		this.havaitsija = havaitsija;
 	}
 
-	public Kalahavainto(String paikka, int pituus, int kalaid, int havaitsija) {
+	public Kalahavainto(String paikka, int pituus, int kalaid, int havaitsija, Paivamaara pvm) {
 		this.paikka = paikka;
 		this.pituus = pituus;
 		this.kalaid = kalaid;
@@ -52,6 +53,14 @@ public class Kalahavainto {
 
 	public int getHavaitsija() {
 		return havaitsija;
+	}
+
+	public Paivamaara getPvm() {
+		return pvm;
+	}
+
+	public void setPvm(Paivamaara pvm) {
+		this.pvm = pvm;
 	}
 	
 }

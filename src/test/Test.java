@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import databaseconnection.DB_connection;
-import databaseconnection.SQLOperations;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
+import databaseobjects.Lintuhavainto;
+import databaseobjects.Paivamaara;
 import databaseobjects.Insertable;
 import databaseobjects.Kala;
 
@@ -22,13 +23,20 @@ public class Test {
 	//	testikunta(connection); toimii
 	//	testikäyttäjä(connection); toimii
 	
-		lisaaLinnut(lueLinnut(true), connection); //toimii
+	//	lisaaLinnut(lueLinnut(true), connection); //toimii
 	//	arrayTest(connection.getConnection()); //toimii
-		lisaaKunnat(lueKunnat(true), connection); //toimii
-		lisaaKalat(lueKalat(true),connection);
+	//	lisaaKunnat(lueKunnat(true), connection); //toimii
+	//	lisaaKalat(lueKalat(true),connection);
+		lintuhavaintoTesti(connection);
 		connection.disconnect();
 	}
 
+	public static void lintuhavaintoTesti(DB_connection connection){
+		Lintuhavainto lintuhavainto=new Lintuhavainto("kiuru", "Kaarina", new Paivamaara(23,4,2016),1,true,true, connection);
+		System.out.println("Otsikko "+lintuhavainto.toInsertHeader()+"ja arvot"+ lintuhavainto.toInsertableString());
+		connection.insertBirdWatch(lintuhavainto);
+	}
+	
 	public static ArrayList<Kala> lueKalat(boolean debug){
 		ArrayList<Kala> kalat=new ArrayList<>();
 		try {

@@ -12,6 +12,7 @@ import databaseobjects.Kala;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
+import databaseobjects.Lintuhavainto;
 
 import java.sql.PreparedStatement;
 
@@ -64,79 +65,48 @@ public class SQLOperations {
 		
 	}
 	
-	public static int insertBirdWatch(String bird, String town, String user, Boolean sponde, Boolean eko, Statement stm){
-		String sql="INSERT INTO lintuhavainto VALUES("+bird+", "+town+", "+user+", "+sponde+", "+eko+")";
+	/**
+	 * 
+	 * @param bird
+	 * @param con
+	 * @return
+	 */
+	public static int searchBirdId(String bird, PreparedStatement pstm){
 		try {
-			return stm.executeUpdate(sql);
+			pstm.setString(1, bird);
+			ResultSet rs=pstm.executeQuery();
+			if(rs.next()){
+				return rs.getInt("id");
+			}else{
+				return -5;
+				//TODO heitetäänkö poikkeus kun lintua ei löydy?????
+			}
 		} catch (SQLException e) {
-			System.err.println("Päivitys ei onnistu");
 			e.printStackTrace();
 			return 0;
 		}
 	}
-	/**
-	 * Lisää vain ne linnut, joita ei vielä ole lisätty
-	 * @param birdArray, lintulista
-	 * @param stm sql Statement
-	 */
-	public static void insertBird(ArrayList<Lintu> birdArray, Statement stm, Connection con){
-		if(birdArray.size()>0){
-			birdArray=removeDuplicateBirds(birdArray, con);
-			if(birdArray.size()>0){
-				Lintu first=birdArray.get(0);
-				String birds="('"+first.getNimi()+"','"+first.getYleisyys()+"')";
-				for (int i=1;i<birdArray.size();i++){
-					birds=birds+",('"+birdArray.get(i).getNimi()+"','"+birdArray.get(i).getYleisyys()+"')";
-				}
-				try {
-					String sql="INSERT INTO lintu(nimi, yleisyys) VALUES "+birds+";";
-					System.out.println(sql);
-					stm.executeUpdate(sql);
-				} catch (SQLException e) {
-					System.out.println("SQL-ongelma yritettäessä lisätä lintuja");
-					e.printStackTrace();
-				}
-			}else{
-				System.out.println("Kaikki linnut olivat jo tietokannassa, ei mitään lisättävää");
-			}
-		}else{
-			System.out.println("Lintulista oli tyhjä, ei mitään lisättävää");
+	
+	public static int insertBirdWatch(Lintuhavainto birdwatch, Connection con){
+		String sql="INSERT INTO "+birdwatch.toInsertHeader()+" VALUES "+birdwatch.toInsertableString()+";";
+		try {
+			Statement stm=con.createStatement();
+			return stm.executeUpdate(sql);
+		} catch (SQLException e) {
+			System.err.println("Havainnon lisäys ei onnistu");
+			e.printStackTrace();
+			return 0;
 		}
 	}
 	
-	
 	/**
-	 * Turha
-	 * Poistetaan lintulistasta kaikki ne niment, jotka esiintyvät jo tietokannassa
-	 * AE: birdArray<>null
-	 * Loppuehto: lintulistasta ei löydy yhtään lintua, joka olisi jo tietokannassa
-	 * @param birdArray
+	 * Lisää kaikki ne listan alkiot sitä vastaan tauluun,
+	 * joita ei vielä ole taulussa
+	 * Lisäksi poistaa listasta sivuvaikutuksena ne alkiot,
+	 * jotka olivat jo tietokannassa.
+	 * @param insertableArray
 	 * @param con
-	 * @return putsattu lintulista
 	 */
-	public static ArrayList<Lintu> removeDuplicateBirds(ArrayList<Lintu> birdArray, Connection con){
-		
-		return birdArray;
-	}
-	
-	/**
-	 * Lisää parametrina annetun käyttäjän
-	 * @param user, joka aiotaan lisätä
-	 * @param stm
-	 */
-	public static void insertUser(Kayttaja user, Statement stm){
-		if (isAlphabetic(user.getNimi()) && isAlphaNumeric(user.getSalasana())){
-			//TODO tarkista, onko käyttäjänimi kelvollinen eli uniikki
-			String sql="INSERT INTO kayttaja(nimi,salasana) VALUES ('"+user.getNimi()+"','"+user.getSalasana()+"');";
-			try {
-				stm.executeUpdate(sql);
-			} catch (SQLException e) {
-				System.out.println("Ainaki tulee mieleen et käyttäjänimi voi olla jo varattu...");
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	public static void insertObject(ArrayList<Insertable> insertableArray, Connection con) {
 		if(insertableArray.size()>0){
 			insertableArray=removeDuplicateInsertables(insertableArray, con);
@@ -216,69 +186,22 @@ public class SQLOperations {
 			return null;
 		}
 	}
-	public static void insertFish(ArrayList<Kala> fishArray, Statement stm, Connection con) {
-		if(fishArray.size()>0){
-			fishArray=removeDuplicateFish(fishArray, con);
-			if(fishArray.size()>0){
-				Kala first=fishArray.get(0);
-				String fish="('"+first.getNimi()+"')";
-				for (int i=1;i<fishArray.size();i++){
-					fish=fish+",('"+fishArray.get(i).getNimi()+"')";
-				}
-				try {
-					String sql="INSERT INTO kala(nimi) VALUES "+fish+";";
-					System.out.println(sql);
-					stm.executeUpdate(sql);
-				} catch (SQLException e) {
-					System.out.println("SQL-ongelma yritettäessä lisätä kuntia");
-					e.printStackTrace();
-				}
-			}else{
-				System.out.println("Kaikki kalat olivat jo tietokannassa, ei mitään lisättävää");
-			}
-		}else{
-			System.out.println("Kalalista oli tyhjä, ei mitään lisättävää");
-		}
-	}
-	private static ArrayList<Kala> removeDuplicateFish(ArrayList<Kala> fishArray, Connection con) {
-		for(int i=0;i<fishArray.size();i++){
-			Kala fish=fishArray.get(i);
-			if(isFishAlreadyInTable(fish, con)){
-				fishArray.remove(i);
-				i--;
-			}
-		}
-		return fishArray;
-	}
-	private static boolean isFishAlreadyInTable(Kala fish, Connection con) {
-		ResultSet rs=searchFish(fish.getNimi(), con);
+	
+	/**
+	 * Etsii kalan nimen sen alkukirjaimen perusteella
+	 * Ennustavaa syöttöä varten
+	 * @param fishBegin
+	 * @param con
+	 * @return
+	 */
+	public static ResultSet searchFish(String fishBegin, PreparedStatement pstm) {
 		try {
-			while(rs.next()){
-				String nimi  = rs.getString("nimi");
-				if(nimi.equals(fish.getNimi())){
-					rs.close();
-					return true;
-				}
-			}
-			rs.close();
-			return false;
-		} catch (SQLException e1) {
-			System.out.println("SQL-ongelma kalaa etsiessä");
-			e1.printStackTrace();
-		}
-		return false;
-	}
-	private static ResultSet searchFish(String fishBegin, Connection con) {
-		PreparedStatement psql=null;
-		String psqlStatement="SELECT nimi FROM kala WHERE nimi LIKE ?;";
-		try {
-			psql=con.prepareStatement(psqlStatement);
-			psql.setString(1, fishBegin+"%");
+			pstm.setString(1, fishBegin+"%");
 			try {
-				ResultSet rs=psql.executeQuery();
+				ResultSet rs=pstm.executeQuery();
 				return rs;
 			} catch (SQLException e) {
-				psql.close();
+				pstm.close();
 				System.err.println("Kysely kaloista ei toiminut");
 				e.printStackTrace();
 				return null;

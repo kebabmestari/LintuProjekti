@@ -12,6 +12,7 @@ import databaseobjects.Kala;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
+import databaseobjects.Lintuhavainto;
 
 public class DB_connection {
 	private final String DB_URI;
@@ -19,7 +20,12 @@ public class DB_connection {
 	private final String password;			//"mysli"
 	
 	private Connection con = null;
-	private PreparedStatement preparedBirdSearch=null;
+	
+	private PreparedStatement preparedBirdNameSearch=null;
+	private PreparedStatement preparedBirdIdSearch=null;
+	
+	private PreparedStatement preparedFishNameSearch=null;
+	private PreparedStatement preparedFishIdSearch=null;
 	
 	public DB_connection(String host, String db_name, String user, String password){
 		DB_URI="jdbc:mysql://"+host.trim()+"/"+db_name.trim();
@@ -51,8 +57,16 @@ public class DB_connection {
 			con=DriverManager.getConnection(DB_URI, user, password);
 			
 			String prepareBirdSearchString="SELECT nimi FROM lintu WHERE nimi LIKE ? ORDER BY yleisyys;";
+			preparedBirdNameSearch=con.prepareStatement(prepareBirdSearchString);
 			
-			preparedBirdSearch=con.prepareStatement(prepareBirdSearchString);
+			prepareBirdSearchString="SELECT id FROM lintu WHERE nimi=? ;";
+			preparedBirdIdSearch=con.prepareStatement(prepareBirdSearchString);
+			
+			String fishSearch="SELECT nimi FROM kala WHERE nimi LIKE ?;";
+			preparedFishNameSearch=con.prepareStatement(fishSearch);
+			
+			fishSearch="SELECT id FROM kala WHERE nimi=? ;";
+			preparedFishIdSearch=con.prepareStatement(fishSearch);
 			
 			return true;
 			
@@ -79,7 +93,22 @@ public class DB_connection {
 	 * @return lista sopivista linnuista, pelk‰t nimet
 	 */
 	public ResultSet searchBird(String wordBegin){	
-		return SQLOperations.searchBird(wordBegin, preparedBirdSearch);
+		return SQLOperations.searchBird(wordBegin, preparedBirdNameSearch);
+	}
+	
+	public int searchBirdId(String bird){
+		return SQLOperations.searchBirdId(bird, preparedBirdIdSearch);
+	}
+	
+	public ResultSet searchFish(String wordBegin){	
+		return SQLOperations.searchFish(wordBegin, preparedFishNameSearch);
+	}
+	
+	/**
+	 * 
+	 */
+	public void insertBirdWatch(Lintuhavainto birdWatch){
+		SQLOperations.insertBirdWatch(birdWatch, con);
 	}
 	
 	/**
@@ -124,10 +153,20 @@ public class DB_connection {
 		SQLOperations.insertObject(townArray, con);
 	}
 	
+	/**
+	 * Lis‰‰ parametrina annetut kunnat,
+	 * mik‰li niit‰ ei viel‰ ole tietokannassa
+	 * @param towns
+	 */
 	public void insertTown(ArrayList<Kunta> towns) {
 		SQLOperations.insertObject(convertToInsertable(towns), con);
 	}
 
+	/**
+	 * Lis‰‰ parametrina annetun kalan,
+	 * mik‰li sit‰ ei viel‰ ole tietokannassa
+	 * @param fish
+	 */
 	public void insertFish(Kala fish){
 		ArrayList<Insertable> fishArray=new ArrayList<>();
 		fishArray.add(fish);
