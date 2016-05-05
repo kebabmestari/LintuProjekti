@@ -1,0 +1,1 @@
+Tähän tiedostoon SQL-kyselyt kantaan plaintextinä
