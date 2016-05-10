@@ -2,7 +2,7 @@ package databaseobjects;
 
 import databaseconnection.DB_connection;
 
-public class Lintuhavainto implements Insertable{
+public class Lintuhavainto implements Havainto{
 	private int lintu;
 	private String paikka;
 	private int id;
@@ -77,6 +77,14 @@ public class Lintuhavainto implements Insertable{
 		this.paikka = paikka;
 	}
 	
+	public Paivamaara getPvm() {
+		return pvm;
+	}
+
+	public void setPvm(Paivamaara pvm) {
+		this.pvm = pvm;
+	}
+
 	@Override
 	public String toInsertableString(){
 		return "('"+lintu+"','"+paikka+"','"+pvm.toString()+"','"+havaitsija+"','"+(eko?1:0)+"','"+(sponde?1:0)+"')";
@@ -87,23 +95,20 @@ public class Lintuhavainto implements Insertable{
 		return "lintuhavainto(lintu,paikka,paivamaara,havaitsija,eko,sponde)";
 	}
 
-	@Override
-	public String getNimi() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
-	public String getTableName() {
+	public String getUniqueAttributesWithValues() {
+		return "lintu='"+lintu+"' AND paivamaara='"+pvm.toString()+"' AND havaitsija='"+havaitsija+"'";
+	}
+
+	@Override
+	public String getTable() {
+		return "lintuhavainto";
+	}
+
+	@Override
+	public String getAllAttributesWithValues() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public Paivamaara getPvm() {
-		return pvm;
-	}
-
-	public void setPvm(Paivamaara pvm) {
-		this.pvm = pvm;
 	}
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import databaseobjects.Insertable;
 import databaseobjects.Kala;
+import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
@@ -49,7 +50,7 @@ public class DB_connection {
 		return con;
 	}
 
-	public boolean createConnection(){
+	private boolean createConnection(){
 		
 		try{
 			Class.forName("com.mysql.jdbc.Driver");
@@ -105,10 +106,29 @@ public class DB_connection {
 	}
 	
 	/**
+	 * Etsii kalan id:n
+	 * Kun lisätään kalahavainto, käyttäjä kirjoittaaa
+	 * kalan nimen, joten tarvitaan myös id.
+	 * @param fish
+	 * @return palauttaa kalan nimeä vastaavan id:n
+	 */
+	public int searchFishId(String fish){
+		return SQLOperations.searchBirdId(fish, preparedFishIdSearch);
+	}
+	
+	/**
+	 * Lisää parametrina annetun fongatun kalan tiedot tietokantaan
+	 * @param fishCatch Kalahavainto, joka halutaan lisätä
+	 */
+	public void insertFishCatch(Kalahavainto fishCatch){
+		SQLOperations.insertHavainto(fishCatch, con);
+	}
+	
+	/**
 	 * 
 	 */
 	public void insertBirdWatch(Lintuhavainto birdWatch){
-		SQLOperations.insertBirdWatch(birdWatch, con);
+		SQLOperations.insertHavainto(birdWatch, con);
 	}
 	
 	/**

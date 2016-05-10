@@ -112,35 +112,43 @@ CREATE TABLE IF NOT EXISTS `tk2`.`lintuhavainto` (
 ENGINE = InnoDB;
 
 
--- -----------------------------------------------------
+--
+ -----------------------------------------------------
 -- Table `tk2`.`kalahavainto`
 -- -----------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS `tk2`.`kalahavainto` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `paikka` VARCHAR(255) NULL DEFAULT 'Ei tiedossa',
-  `pituus` INT NOT NULL,
+ 
+ `pituus` INT NOT NULL,
   `kalaid` INT NOT NULL,
   `havaitsija` INT NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `const_kalaid_idx2` (`kalaid` ASC),
+ 
+ INDEX `const_kalaid_idx2` (`kalaid` ASC),
   INDEX `const_havaitsija_idx2` (`havaitsija` ASC),
   INDEX `const_paikka_idx3` (`paikka` ASC),
-  CONSTRAINT `const_kalaid3`
+ 
+ CONSTRAINT `const_kalaid3`
     FOREIGN KEY (`kalaid`)
     REFERENCES `tk2`.`kala` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `const_kala_havaitsija`
+  
+CONSTRAINT `const_kala_havaitsija`
     FOREIGN KEY (`havaitsija`)
     REFERENCES `tk2`.`kayttaja` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `const_kalapaikka`
+ 
+ CONSTRAINT `const_kalapaikka`
     FOREIGN KEY (`paikka`)
     REFERENCES `tk2`.`kunta` (`nimi`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

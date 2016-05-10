@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import databaseobjects.Havainto;
 import databaseobjects.Insertable;
 import databaseobjects.Kala;
 import databaseobjects.Kayttaja;
@@ -66,10 +67,10 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * 
+	 * Palauttaa linnun id:n
 	 * @param bird
 	 * @param con
-	 * @return
+	 * @return Linnun id
 	 */
 	public static int searchBirdId(String bird, PreparedStatement pstm){
 		try {
@@ -79,7 +80,7 @@ public class SQLOperations {
 				return rs.getInt("id");
 			}else{
 				return -5;
-				//TODO heitetäänkö poikkeus kun lintua ei löydy?????
+				//TODO heitetäänkö poikkeus kun lintua ei löydy????? Kyllä!!!!
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -87,16 +88,59 @@ public class SQLOperations {
 		}
 	}
 	
-	public static int insertBirdWatch(Lintuhavainto birdwatch, Connection con){
-		String sql="INSERT INTO "+birdwatch.toInsertHeader()+" VALUES "+birdwatch.toInsertableString()+";";
+	/**
+	 * Lisää lintu- tai kalahavainnon tietokantaan.
+	 * @param havainto
+	 * @param con
+	 * @return lisättyjen rivien määrä
+	 */
+	public static int insertHavainto(Havainto havainto, Connection con){
+		int id=havaintoIdIfAlreadyInTable(havainto, con);
+		if(id>0){
+			updateHavainto(havainto, id);
+			return 0;
+		}else{
+			String sql="INSERT INTO "+havainto.toInsertHeader()+" VALUES "+havainto.toInsertableString()+";";
+			try {
+				Statement stm=con.createStatement();
+				return stm.executeUpdate(sql);
+			} catch (SQLException e) {
+				System.err.println("Havainnon lisäys ei onnistu");
+				e.printStackTrace();
+				return 0;
+			}
+		}
+	}
+	
+	/**
+	 * Päivittää havainnon tiedot parametrina annettun havainnon tietoihin
+	 * @param havainto
+	 * @param id
+	 */
+	private static void updateHavainto(Havainto havainto, int id) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private static int havaintoIdIfAlreadyInTable(Havainto havainto, Connection con){
+		String sql="SELECT * FROM "+havainto.getTable()+
+				"WHERE "+havainto.getUniqueAttributesWithValues()+";";
 		try {
 			Statement stm=con.createStatement();
-			return stm.executeUpdate(sql);
+			ResultSet rs=stm.executeQuery(sql);
+			if(rs.next()){
+				int id=rs.getInt("id");
+				rs.close();stm.close();
+				return id;
+			}else{
+				rs.close();stm.close();
+				return 0;
+			}
 		} catch (SQLException e) {
-			System.err.println("Havainnon lisäys ei onnistu");
 			e.printStackTrace();
-			return 0;
+			return -1;
 		}
+		
 	}
 	
 	/**
@@ -165,7 +209,14 @@ public class SQLOperations {
 		return true;
 	}
 	
-	private static ResultSet searchTown(String townBegin, Connection con) {
+	/**
+	 * Etsii kunnan sen alkuosan perusteella
+	 * Ennustavaa syöttöä varten
+	 * @param townBegin
+	 * @param con
+	 * @return lista kunnista, jotka alkoivat parametrina annetulla merkkijonolla
+	 */
+	public static ResultSet searchTown(String townBegin, Connection con) {
 		PreparedStatement psql=null;
 		String psqlStatement="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
 		try {
@@ -192,7 +243,7 @@ public class SQLOperations {
 	 * Ennustavaa syöttöä varten
 	 * @param fishBegin
 	 * @param con
-	 * @return
+	 * @return ResultSet kaikista kaloista, jotka alkoivat annetulla merkkijonolla
 	 */
 	public static ResultSet searchFish(String fishBegin, PreparedStatement pstm) {
 		try {
@@ -210,6 +261,27 @@ public class SQLOperations {
 			System.out.println("virheellinen SQL");
 			e1.printStackTrace();
 			return null;
+		}
+	}
+	/**
+	 * Palauttaa kalan id:n
+	 * @param fish
+	 * @param con
+	 * @return Kalan id
+	 */
+	public static int searchFishId(String fish, PreparedStatement pstm){
+		try {
+			pstm.setString(1, fish);
+			ResultSet rs=pstm.executeQuery();
+			if(rs.next()){
+				return rs.getInt("id");
+			}else{
+				return -5;
+				//TODO heitetäänkö poikkeus kun kalaa ei löydy?????
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
 		}
 	}
 }
