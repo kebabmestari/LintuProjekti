@@ -3,10 +3,10 @@ package databaseconnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import databaseobjects.Havainto;
 import databaseobjects.Insertable;
 import databaseobjects.Kala;
 import databaseobjects.Kalahavainto;
@@ -27,6 +27,8 @@ public class DB_connection {
 	
 	private PreparedStatement preparedFishNameSearch=null;
 	private PreparedStatement preparedFishIdSearch=null;
+	
+	private PreparedStatement preparedTownSearch=null;
 	
 	public DB_connection(String host, String db_name, String user, String password){
 		DB_URI="jdbc:mysql://"+host.trim()+"/"+db_name.trim();
@@ -69,6 +71,9 @@ public class DB_connection {
 			fishSearch="SELECT id FROM kala WHERE nimi=? ;";
 			preparedFishIdSearch=con.prepareStatement(fishSearch);
 			
+			String townSearch="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
+			preparedTownSearch=con.prepareStatement(townSearch);
+			
 			return true;
 			
 		}catch (ClassNotFoundException | SQLException e){
@@ -97,7 +102,7 @@ public class DB_connection {
 	 * @param wordBegin, linnun nimen alku
 	 * @return lista sopivista linnuista, pelk‰t nimet
 	 */
-	public ResultSet searchBird(String wordBegin){	
+	public ArrayList<Lintu> searchBird(String wordBegin){
 		return SQLOperations.searchBird(wordBegin, preparedBirdNameSearch);
 	}
 	
@@ -115,7 +120,7 @@ public class DB_connection {
 	 * @param wordBegin
 	 * @return
 	 */
-	public ResultSet searchFish(String wordBegin){	
+	public ArrayList<Kala> searchFish(String wordBegin){	
 		return SQLOperations.searchFish(wordBegin, preparedFishNameSearch);
 	}
 	
@@ -128,6 +133,10 @@ public class DB_connection {
 	 */
 	public int searchFishId(String fish){
 		return SQLOperations.searchBirdId(fish, preparedFishIdSearch);
+	}
+	
+	public ArrayList<Kunta> searchTown(String townBegin) {
+		return SQLOperations.searchTown(townBegin, preparedTownSearch);
 	}
 	
 	/**
@@ -148,6 +157,18 @@ public class DB_connection {
 	}
 	
 	/**
+	 * Etsii havainnon id:n.
+	 * Kalahavainnoissa riitt‰‰, ett‰ sin‰ vuonna on saatu kyseinen laji.
+	 * Lintuhavainnoissa lintu pit‰‰ olla havaittu samana p‰iv‰n‰,
+	 * koska voidaa myˆs p‰iv‰npinnailla.
+	 * @param havainto lintuhavainto tai kalahavainto
+	 * @return 0 jos ei ole havaintoa, -1 jos error, id > 0 jos lˆytyi
+	 */
+	public int getHavaintoId(Havainto havainto){
+		return SQLOperations.havaintoIdIfAlreadyInTable(havainto, con);
+	}
+	
+	/**
 	 * P‰ivitt‰‰ havainnon annetulla havainnolla
 	 * @param birdWatch
 	 */
@@ -156,7 +177,7 @@ public class DB_connection {
 		if(id>0){
 			SQLOperations.updateHavainto(birdWatch, id, con);
 		}else{
-			//TODO ei voida p‰ivitt‰‰, koska ei ole alunperin havaintoa
+			//TODO ei voida p‰ivitt‰‰, koska ei ole alunperin havaintoa tai error
 		}
 	}
 	

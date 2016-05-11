@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 
 import databaseobjects.Havainto;
 import databaseobjects.Insertable;
+import databaseobjects.Kala;
+import databaseobjects.Kayttaja;
+import databaseobjects.Kunta;
+import databaseobjects.Lintu;
 
 import java.sql.PreparedStatement;
 
@@ -41,12 +45,23 @@ public class SQLOperations {
 		} 
 	}
 	
-	public static ResultSet searchBird(String wordBegin, PreparedStatement pstm){
+	/**
+	 * Etsii listan linnuista, jotka alkavat ennetulla merkkijonolla
+	 * @param wordBegin
+	 * @param pstm
+	 * @return lista linnuista
+	 */
+	public static ArrayList<Lintu> searchBird(String wordBegin, PreparedStatement pstm){
+		ArrayList<Lintu> birdList=new ArrayList<>();
 		try {
 			pstm.setString(1, wordBegin+"%");
 			try {
 				ResultSet rs=pstm.executeQuery();
-				return rs;
+				while(rs.next()){
+					String nimi=rs.getString("nimi");
+					birdList.add(new Lintu(nimi));
+				}
+				return birdList;
 			} catch (SQLException e) {
 				pstm.close();
 				System.err.println("Kysely lajeista ei toiminut");
@@ -83,6 +98,87 @@ public class SQLOperations {
 		}
 	}
 	
+	/**
+	 * Etsii kalan nimen sen alkukirjaimen perusteella
+	 * Ennustavaa syöttöä varten
+	 * @param fishBegin
+	 * @param con
+	 * @return ResultSet kaikista kaloista, jotka alkoivat annetulla merkkijonolla
+	 */
+	public static ArrayList<Kala> searchFish(String fishBegin, PreparedStatement pstm) {
+		ArrayList<Kala> fishlist=new ArrayList<>();
+		try {
+			pstm.setString(1, fishBegin+"%");
+			try {
+				ResultSet rs=pstm.executeQuery();
+				while(rs.next()){
+					String fishName=rs.getString("nimi");
+					fishlist.add(new Kala(fishName));
+				}
+				return fishlist;
+			} catch (SQLException e) {
+				pstm.close();
+				System.err.println("Kysely kaloista ei toiminut");
+				e.printStackTrace();
+				return null;
+			}	
+		} catch (SQLException e1) {
+			System.out.println("virheellinen SQL");
+			e1.printStackTrace();
+			return null;
+		}
+	}
+	/**
+	 * Palauttaa kalan id:n
+	 * @param fish
+	 * @param con
+	 * @return Kalan id tai -5 jos ei löyty tai -1 jos error
+	 */
+	public static int searchFishId(String fish, PreparedStatement pstm){
+		try {
+			pstm.setString(1, fish);
+			ResultSet rs=pstm.executeQuery();
+			if(rs.next()){
+				return rs.getInt("id");
+			}else{
+				return -5;
+				//TODO heitetäänkö poikkeus kun kalaa ei löydy?????
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	/**
+	 * Etsii kunnan sen alkuosan perusteella
+	 * Ennustavaa syöttöä varten
+	 * @param townBegin kunnan alkuosa
+	 * @param townSearch kuntahaku
+	 * @return lista kunnista, jotka alkoivat parametrina annetulla merkkijonolla
+	 */
+	public static ArrayList<Kunta> searchTown(String townBegin, PreparedStatement townSearch) {
+		ArrayList<Kunta> townList=new ArrayList<>();
+		try {
+			townSearch.setString(1, townBegin+"%");
+			try {
+				ResultSet rs=townSearch.executeQuery();
+				while(rs.next()){
+					String town=rs.getString("nimi");
+					townList.add(new Kunta(town));
+				}
+				return townList;
+			} catch (SQLException e) {
+				townSearch.close();
+				System.err.println("Kysely kunnista ei toiminut");
+				e.printStackTrace();
+				return null;
+			}	
+		} catch (SQLException e1) {
+			System.out.println("virheellinen SQL");
+			e1.printStackTrace();
+			return null;
+		}
+	}
 	/**
 	 * Lisää lintu- tai kalahavainnon tietokantaan.
 	 * @param havainto
@@ -215,79 +311,7 @@ public class SQLOperations {
 		return true;
 	}
 	
-	/**
-	 * Etsii kunnan sen alkuosan perusteella
-	 * Ennustavaa syöttöä varten
-	 * @param townBegin
-	 * @param con
-	 * @return lista kunnista, jotka alkoivat parametrina annetulla merkkijonolla
-	 */
-	public static ResultSet searchTown(String townBegin, Connection con) {
-		PreparedStatement psql=null;
-		String psqlStatement="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
-		try {
-			psql=con.prepareStatement(psqlStatement);
-			psql.setString(1, townBegin+"%");
-			try {
-				ResultSet rs=psql.executeQuery();
-				return rs;
-			} catch (SQLException e) {
-				psql.close();
-				System.err.println("Kysely kunnista ei toiminut");
-				e.printStackTrace();
-				return null;
-			}	
-		} catch (SQLException e1) {
-			System.out.println("virheellinen SQL");
-			e1.printStackTrace();
-			return null;
-		}
-	}
-	
-	/**
-	 * Etsii kalan nimen sen alkukirjaimen perusteella
-	 * Ennustavaa syöttöä varten
-	 * @param fishBegin
-	 * @param con
-	 * @return ResultSet kaikista kaloista, jotka alkoivat annetulla merkkijonolla
-	 */
-	public static ResultSet searchFish(String fishBegin, PreparedStatement pstm) {
-		try {
-			pstm.setString(1, fishBegin+"%");
-			try {
-				ResultSet rs=pstm.executeQuery();
-				return rs;
-			} catch (SQLException e) {
-				pstm.close();
-				System.err.println("Kysely kaloista ei toiminut");
-				e.printStackTrace();
-				return null;
-			}	
-		} catch (SQLException e1) {
-			System.out.println("virheellinen SQL");
-			e1.printStackTrace();
-			return null;
-		}
-	}
-	/**
-	 * Palauttaa kalan id:n
-	 * @param fish
-	 * @param con
-	 * @return Kalan id
-	 */
-	public static int searchFishId(String fish, PreparedStatement pstm){
-		try {
-			pstm.setString(1, fish);
-			ResultSet rs=pstm.executeQuery();
-			if(rs.next()){
-				return rs.getInt("id");
-			}else{
-				return -5;
-				//TODO heitetäänkö poikkeus kun kalaa ei löydy?????
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
-		}
+	public int getFongoIndex(Kayttaja user){
+		return 0;
 	}
 }

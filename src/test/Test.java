@@ -1,6 +1,5 @@
 package test;
 import java.io.InputStream;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -25,11 +24,12 @@ public class Test {
 	//	testikunta(connection); toimii
 	//	testikäyttäjä(connection); toimii
 	
+	//	etsiLinnut(connection, "ki");
 	//	lisaaLinnut(lueLinnut(true), connection); //toimii
 	//	arrayTest(connection.getConnection()); //toimii
 	//	lisaaKunnat(lueKunnat(true), connection); //toimii
 	//	lisaaKalat(lueKalat(true),connection);
-		lintuhavaintoTesti(connection);
+	//	lintuhavaintoTesti(connection);
 	//	kalahavaintotesti(connection);
 		connection.disconnect();
 	}
@@ -146,17 +146,10 @@ public class Test {
 	}
 	
 	public static void etsiLinnut(DB_connection connection, String alkuosa) {
-		try{
-			ResultSet rs = connection.searchBird(alkuosa);
-			while(rs.next()){
-				String nimi  = rs.getString("nimi");
-				//int id=rs.getInt("id");
-				System.out.println("Nimi: " +nimi+" id tuntematon");
-			}
-			rs.close();		
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			ArrayList<Lintu> linnut= connection.searchBird(alkuosa);
+			for (Lintu l:linnut){
+				System.out.println(l.getNimi());
+			}	
 	}
 	
 	public static void testikäyttäjä(DB_connection connection) {
