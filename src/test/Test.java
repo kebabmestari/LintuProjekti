@@ -29,8 +29,8 @@ public class Test {
 	//	arrayTest(connection.getConnection()); //toimii
 	//	lisaaKunnat(lueKunnat(true), connection); //toimii
 	//	lisaaKalat(lueKalat(true),connection);
-	//	lintuhavaintoTesti(connection);
-		kalahavaintotesti(connection);
+		lintuhavaintoTesti(connection);
+	//	kalahavaintotesti(connection);
 		connection.disconnect();
 	}
 
@@ -38,10 +38,10 @@ public class Test {
 		int id=connection.searchFishId("hauki");
 		System.out.println("hauki "+id);
 		try {
-			Kalahavainto kh=new Kalahavainto("Parainen", 20, "ahven",1,new Paivamaara("1.5.2016"), connection);
+			Kalahavainto kh=new Kalahavainto("Kaarina", 25, "ahven",1,new Paivamaara("3.5.2016"), connection);
 			System.out.println("Kalaid: "+kh.getKalaid()+" P‰iv‰m‰‰r‰: "+kh.getPvm().toString());
 			System.out.println(((Havainto)kh).getUniqueAttributesWithValues());
-		//	connection.insertFishCatch(kh);
+			connection.insertFishCatch(kh);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -53,7 +53,7 @@ public class Test {
 	public static void lintuhavaintoTesti(DB_connection connection){
 		Lintuhavainto lintuhavainto = null;
 		try {
-			lintuhavainto = new Lintuhavainto("kiuru", "Kaarina", new Paivamaara(23,4,2016),1,true,true, connection);
+			lintuhavainto = new Lintuhavainto("kiuru", "Turku", new Paivamaara(22,4,2016),1,false,true, connection);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

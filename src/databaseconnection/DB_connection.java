@@ -77,6 +77,10 @@ public class DB_connection {
 		}
 	}
 	
+	/**
+	 * Sulkee tietokantayhteyden
+	 * @return onnistuiko sulkeminen
+	 */
 	public boolean disconnect(){
 		try {
 			con.close();
@@ -97,10 +101,20 @@ public class DB_connection {
 		return SQLOperations.searchBird(wordBegin, preparedBirdNameSearch);
 	}
 	
+	/**
+	 * Etsii linnun koko nime‰ vastaavan id:n
+	 * @param bird koko nimi
+	 * @return id tai -5 jos ei lˆydy
+	 */
 	public int searchBirdId(String bird){
 		return SQLOperations.searchBirdId(bird, preparedBirdIdSearch);
 	}
 	
+	/**
+	 * Etsii kalojen nimet, jotka alkavat annetulla merkkijonolla
+	 * @param wordBegin
+	 * @return
+	 */
 	public ResultSet searchFish(String wordBegin){	
 		return SQLOperations.searchFish(wordBegin, preparedFishNameSearch);
 	}
@@ -117,7 +131,8 @@ public class DB_connection {
 	}
 	
 	/**
-	 * Lis‰‰ parametrina annetun fongatun kalan tiedot tietokantaan
+	 * Lis‰‰ parametrina annetun fongatun kalan tiedot tietokantaan.
+	 * Jos sin‰ vuonna on jo kyseinen laji saatu, havainnot p‰ivitet‰‰n
 	 * @param fishCatch Kalahavainto, joka halutaan lis‰t‰
 	 */
 	public void insertFishCatch(Kalahavainto fishCatch){
@@ -125,10 +140,37 @@ public class DB_connection {
 	}
 	
 	/**
-	 * 
+	 * Lis‰‰ lintuhavainnon tietokantaan. Mik‰li oli n‰hty jo laji sin‰ p‰iv‰n‰,
+	 * havainto vain p‰ivitet‰‰n uusilla tiedoilla.
 	 */
 	public void insertBirdWatch(Lintuhavainto birdWatch){
 		SQLOperations.insertHavainto(birdWatch, con);
+	}
+	
+	/**
+	 * P‰ivitt‰‰ havainnon annetulla havainnolla
+	 * @param birdWatch
+	 */
+	public void updateBirdWatch(Lintuhavainto birdWatch){
+		int id=SQLOperations.havaintoIdIfAlreadyInTable(birdWatch, con);
+		if(id>0){
+			SQLOperations.updateHavainto(birdWatch, id, con);
+		}else{
+			//TODO ei voida p‰ivitt‰‰, koska ei ole alunperin havaintoa
+		}
+	}
+	
+	/**
+	 * P‰ivitt‰‰ havainnon annetulla havainnolla
+	 * @param fishCatch uudet tiedot
+	 */
+	public void updateFichCatch(Kalahavainto fishCatch){
+		int id=SQLOperations.havaintoIdIfAlreadyInTable(fishCatch, con);
+		if(id>0){
+			SQLOperations.updateHavainto(fishCatch, id, con);
+		}else{
+			//TODO ei voida p‰ivitt‰‰, koska ei ole alunperin havaintoa
+		}
 	}
 	
 	/**

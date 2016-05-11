@@ -13,7 +13,12 @@ import java.io.Serializable;
  */
 public class adsdas implements Serializable {
     
-    public static final String PROP_SAMPLE_PROPERTY = "sampleProperty";
+    /**
+	 * Onko tarpeellinen? Valitti, jos ei ollut.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public static final String PROP_SAMPLE_PROPERTY = "sampleProperty";
     
     private String sampleProperty;
     

@@ -107,8 +107,7 @@ public class Lintuhavainto implements Havainto{
 	}
 
 	@Override
-	public String getAllAttributesWithValues() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getAllUpdatableAttributesWithValues() {
+		return "paikka='"+paikka+"', eko='"+(eko?1:0)+"', sponde='"+(sponde?1:0)+"'";
 	}
 }

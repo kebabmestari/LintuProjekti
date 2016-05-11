@@ -30,5 +30,5 @@ public interface Havainto {
 	 * Palauttaa päivitystä varten kaikki arrtibuutit ja arvot
 	 * @return
 	 */
-	public String getAllAttributesWithValues();
+	public String getAllUpdatableAttributesWithValues();
 }

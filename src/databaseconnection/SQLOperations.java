@@ -9,11 +9,6 @@ import java.util.regex.Pattern;
 
 import databaseobjects.Havainto;
 import databaseobjects.Insertable;
-import databaseobjects.Kala;
-import databaseobjects.Kayttaja;
-import databaseobjects.Kunta;
-import databaseobjects.Lintu;
-import databaseobjects.Lintuhavainto;
 
 import java.sql.PreparedStatement;
 
@@ -92,14 +87,18 @@ public class SQLOperations {
 	 * Lis‰‰ lintu- tai kalahavainnon tietokantaan.
 	 * @param havainto
 	 * @param con
-	 * @return lis‰ttyjen rivien m‰‰r‰
+	 * @return lis‰ttyjen rivien m‰‰r‰, jos error -1, jos p‰ivitys 0
 	 */
 	public static int insertHavainto(Havainto havainto, Connection con){
 		int id=havaintoIdIfAlreadyInTable(havainto, con);
 		if(id>0){
-			updateHavainto(havainto, id);
+			System.out.println("P‰ivitet‰‰n");
+			updateHavainto(havainto, id, con);
 			return 0;
-		}else{
+		}else if(id==-1){
+			return -1;
+		}else{	
+			System.out.println("Lis‰t‰‰n");
 			String sql="INSERT INTO "+havainto.toInsertHeader()+" VALUES "+havainto.toInsertableString()+";";
 			try {
 				Statement stm=con.createStatement();
@@ -107,7 +106,7 @@ public class SQLOperations {
 			} catch (SQLException e) {
 				System.err.println("Havainnon lis‰ys ei onnistu");
 				e.printStackTrace();
-				return 0;
+				return -1;
 			}
 		}
 	}
@@ -117,14 +116,21 @@ public class SQLOperations {
 	 * @param havainto
 	 * @param id
 	 */
-	private static void updateHavainto(Havainto havainto, int id) {
-		// TODO Auto-generated method stub
-		
+	public static void updateHavainto(Havainto havainto, int id, Connection con) {
+		String sql="UPDATE "+havainto.getTable()+
+				" SET "+havainto.getAllUpdatableAttributesWithValues()+
+				"WHERE id='"+id+"';";
+		try {
+			Statement stm=con.createStatement();
+			stm.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private static int havaintoIdIfAlreadyInTable(Havainto havainto, Connection con){
-		String sql="SELECT * FROM "+havainto.getTable()+
-				"WHERE "+havainto.getUniqueAttributesWithValues()+";";
+	public static int havaintoIdIfAlreadyInTable(Havainto havainto, Connection con){
+		String sql="SELECT id FROM "+havainto.getTable()+
+				" WHERE "+havainto.getUniqueAttributesWithValues()+";";
 		try {
 			Statement stm=con.createStatement();
 			ResultSet rs=stm.executeQuery(sql);

@@ -94,9 +94,8 @@ public class Kalahavainto implements Havainto {
 	}
 
 	@Override
-	public String getAllAttributesWithValues() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getAllUpdatableAttributesWithValues() {
+		return "paikka='"+paikka+"', pituus='"+pituus+"', paivamaara='"+pvm+"'";
 	}
 	
 }
