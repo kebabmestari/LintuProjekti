@@ -245,6 +245,35 @@ public class SQLOperations {
 		
 	}
 	
+	public static int insertUser(Kayttaja user, PreparedStatement insertUser, PreparedStatement getUserId, Connection con) {
+		if(!isInsrtableAlreadyInTable(user, con)){
+			try{
+				insertUser.setString(1, user.getNimi());
+				insertUser.setString(2, user.getSalasana());
+				insertUser.executeUpdate();
+				return getUserId(user,getUserId);
+			}catch(SQLException e){
+				e.printStackTrace();
+				return -1;
+			}
+		}
+		return -2;
+	}
+	
+	public static int getUserId(Kayttaja user, PreparedStatement getUserId){	
+		try{
+			getUserId.setString(1, user.getNimi());
+			ResultSet rs=getUserId.executeQuery();
+			if(rs.next()){
+				return rs.getInt("id");
+			}
+			return -1;
+		}catch(SQLException e){
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	/**
 	 * Lisää kaikki ne listan alkiot sitä vastaan tauluun,
 	 * joita ei vielä ole taulussa
@@ -306,12 +335,102 @@ public class SQLOperations {
 		} catch (SQLException e1) {
 			System.out.println("SQL-ongelma etsiessä tyyppiä "+insertable.getTableName());
 			e1.printStackTrace();
-			System.exit(-1);
+			return true;
 		}
-		return true;
 	}
 	
-	public int getFongoIndex(Kayttaja user){
-		return 0;
+	/**
+	 * 
+	 * @param user
+	 * @param vuosi
+	 * @param fishIndexSearch
+	 * @param fishIndexCheck
+	 * @param fishMaxLengthId
+	 * @param delete
+	 * @return fongauksen indeksi
+	 */
+	public static int getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
+			PreparedStatement fishIndexCheck, PreparedStatement fishMaxLengthId, PreparedStatement delete){
+		ArrayList<Integer> kalaidArray=checkForDuplicates(fishIndexCheck, user, vuosi);
+		if(kalaidArray.get(0)>0){
+			for (int kalaid:kalaidArray){
+				if(kalaid>0){
+					removeSmallerDuplicates(kalaid, user, vuosi, fishMaxLengthId, delete);
+				}
+			}
+		}else if(kalaidArray.get(0)==-1){
+			return -1;
+		}
+		try {
+			fishIndexSearch.setInt(1, user.getId());
+			fishIndexSearch.setInt(2, vuosi);
+			ResultSet rs=fishIndexSearch.executeQuery();
+			if(rs.next()){
+				return rs.getInt("pituus")*rs.getInt("lkm");	
+			}else{
+				return 0;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	/**
+	 * Poistaa tietokannasta indeksin laskemista häiritsevät virheelliset monikot.
+	 * Vain pisin lajin edustaja per vuosi per käyttäjä säilytetään (jos kaksi, niin uudempi).
+	 * @param kalaid poistettavan havainnon kalalajin id
+	 * @param user käyttäjä, jonka fongoja poistetaan
+	 * @param vuosi 
+	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksilöiden id:t aikajärjestyksessä
+	 * @param deleteFishCatchById, päivitys, joka poistaa havainnot anneulta käyttäjältä, lajilta ja vuodelta, mikäli id on eri
+	 */
+	public static void removeSmallerDuplicates(int kalaid, Kayttaja user, int vuosi, PreparedStatement fishMaxLengthId, PreparedStatement deleteFishCatchById) {
+		try{
+			fishMaxLengthId.setInt(1, user.getId());
+			fishMaxLengthId.setInt(2, kalaid);
+			fishMaxLengthId.setInt(3, vuosi);
+			fishMaxLengthId.setInt(4, user.getId());
+			fishMaxLengthId.setInt(5, kalaid);
+			fishMaxLengthId.setInt(6, vuosi);
+			ResultSet rs=fishMaxLengthId.executeQuery();
+			if(rs.next()){
+				int id=rs.getInt("k.id");
+				System.out.println(id);
+				deleteFishCatchById.setInt(1, user.getId());
+				deleteFishCatchById.setInt(2, kalaid);
+				deleteFishCatchById.setInt(3, vuosi);
+				deleteFishCatchById.setInt(4, id);
+				deleteFishCatchById.executeUpdate();
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static ArrayList<Integer> checkForDuplicates(PreparedStatement fishIndexCheck, Kayttaja user, int vuosi){
+		ArrayList<Integer> idArray=new ArrayList<>();
+		try {
+			fishIndexCheck.setInt(1, user.getId());
+			fishIndexCheck.setInt(2, vuosi);
+			ResultSet rs=fishIndexCheck.executeQuery();
+			if(rs.next()){
+				do{
+					idArray.add(rs.getInt("kalaid"));
+				}while(rs.next());
+			}else{
+				idArray.add(0);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			try{
+				idArray.set(0, -1);
+			}catch(IndexOutOfBoundsException e2){
+				idArray.add(-1);
+			}
+		}
+		return idArray;
+		
 	}
 }

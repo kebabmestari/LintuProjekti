@@ -10,7 +10,6 @@ import databaseobjects.Lintu;
 import databaseobjects.Lintuhavainto;
 import databaseobjects.Paivamaara;
 import databaseobjects.Havainto;
-import databaseobjects.Insertable;
 import databaseobjects.Kala;
 import databaseobjects.Kalahavainto;
 
@@ -31,9 +30,10 @@ public class Test {
 	//	lisaaKalat(lueKalat(true),connection);
 	//	lintuhavaintoTesti(connection);
 	//	kalahavaintotesti(connection);
+		testikäyttäjä(connection);
 		connection.disconnect();
 	}
-
+	
 	public static void kalahavaintotesti(DB_connection connection) {
 		int id=connection.searchFishId("hauki");
 		System.out.println("hauki "+id);
@@ -42,6 +42,8 @@ public class Test {
 			System.out.println("Kalaid: "+kh.getKalaid()+" Päivämäärä: "+kh.getPvm().toString());
 			System.out.println(((Havainto)kh).getUniqueAttributesWithValues());
 			connection.insertFishCatch(kh);
+			Kayttaja user=new Kayttaja(1,"Jossi","salainen");
+			System.out.println(connection.getFishCatchIndex(user, 2016));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -153,8 +155,12 @@ public class Test {
 	}
 	
 	public static void testikäyttäjä(DB_connection connection) {
-		Kayttaja josia=new Kayttaja("Josia", "kovinSalainen");
-		connection.insertUser(josia);
+		Kayttaja josia=new Kayttaja("Nyman", "hyvinSalainen");
+		int id=connection.insertUser(josia);
+		if(id>0){
+			josia.setId(id);
+		}
+		System.out.println(id);
 	}
 	
 	public static void testikunta(DB_connection connection) {
@@ -176,7 +182,7 @@ public class Test {
 	public static void printArray(ArrayList<?> lista) {
 		System.out.print("[");
 		for(Object l: lista){
-			System.out.print("("+((Insertable) l).getNimi()+"), ");
+			System.out.print("("+l+"), ");
 		}
 		System.out.println("] Size:"+lista.size());
 	}

@@ -22,11 +22,22 @@ public class DB_connection {
 	
 	private Connection con = null;
 	
+	private PreparedStatement insertUser=null;
+	private PreparedStatement getUserId=null;
+	
 	private PreparedStatement preparedBirdNameSearch=null;
 	private PreparedStatement preparedBirdIdSearch=null;
 	
 	private PreparedStatement preparedFishNameSearch=null;
 	private PreparedStatement preparedFishIdSearch=null;
+	
+	/**
+	 * Kalahavainnon preparaatit
+	 */
+	private PreparedStatement preparedFishIndexCheck=null;
+	private PreparedStatement preparedFishIndexSearch=null;
+	private PreparedStatement preparedFishMaxLengthSearch=null;
+	private PreparedStatement preparedFishCatchDeleteById=null;
 	
 	private PreparedStatement preparedTownSearch=null;
 	
@@ -73,6 +84,37 @@ public class DB_connection {
 			
 			String townSearch="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
 			preparedTownSearch=con.prepareStatement(townSearch);
+			
+			String fishIndexCheck="SELECT COUNT(*) AS lkm, kalaid "+
+								"FROM kalahavainto "+
+								"WHERE havaitsija=? AND YEAR(paivamaara)=? "+
+								"GROUP BY kalaid "+
+								"HAVING COUNT(*)>1;";
+			preparedFishIndexCheck=con.prepareStatement(fishIndexCheck);
+			
+			String fishIndexSearch="SELECT 	SUM(pituus) AS pituus, COUNT(kalaid) as lkm "+
+								"FROM 	kalahavainto "+
+								"WHERE 	havaitsija=? AND YEAR(paivamaara)=?;";
+			preparedFishIndexSearch=con.prepareStatement(fishIndexSearch);
+			
+			String fishMaxLenghtIdSearch="SELECT k.id "+
+			"FROM kalahavainto AS k "+
+			"WHERE k.havaitsija=? AND k.kalaid=? AND YEAR(k.paivamaara)=? "+
+			" AND k.pituus=(SELECT MAX(pituus)"+
+						" FROM kalahavainto"+
+						" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=?)"+
+			"ORDER BY paivamaara desc;";
+			preparedFishMaxLengthSearch=con.prepareStatement(fishMaxLenghtIdSearch);
+			
+			String deleteFishCatch="DELETE FROM kalahavainto"+
+			" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?";
+			preparedFishCatchDeleteById=con.prepareStatement(deleteFishCatch);
+			
+			String insertUserSql="INSERT INTO kayttaja(nimi,salasana) VALUES (?,?);";
+			insertUser=con.prepareStatement(insertUserSql);
+			
+			String getUserIdSql="SELECT id FROM kayttaja WHERE nimi=?;";
+			getUserId=con.prepareStatement(getUserIdSql);
 			
 			return true;
 			
@@ -218,11 +260,10 @@ public class DB_connection {
 	 * Lis‰‰ parametrina annetun k‰ytt‰j‰n,
 	 * mik‰li sit‰ ei ole jo tietokannassa
 	 * @param user, joka aiotaan lis‰t‰
+	 * @return k‰ytt‰j‰n id tai -2 jos nimi jo k‰ytˆss‰ tai -1 jos poikkeus
 	 */
-	public void insertUser(Kayttaja user){
-		ArrayList<Insertable> userArray = new ArrayList<>();
-		userArray.add(user);
-		SQLOperations.insertObject(userArray, con);
+	public int insertUser(Kayttaja user){
+		return SQLOperations.insertUser(user, insertUser, getUserId, con);
 	}
 	
 	/**
@@ -276,5 +317,19 @@ public class DB_connection {
 		} catch (Exception e){
 			return null;
 		}
+	}
+	
+	/**
+	 * Palauttaa fongausindeksin
+	 * Mik‰li tietokannassa on virheellisi‰ monikoita, ne poistetaan.
+	 * Yht‰ k‰ytt‰j‰‰, kalalajia ja vuotta kohti saa olla vain yksi havainto.
+	 * Pisin ja pisimmist‰ uusin j‰‰ tietokantaan.
+	 * @param user, huom id oltava oikea id
+	 * @param vuosi, vuosi, jolta haetaan indeksi‰
+	 * @return fongausindeksi
+	 */
+	public int getFishCatchIndex(Kayttaja user, int vuosi){
+		return SQLOperations.getFongoIndex(user, vuosi, preparedFishIndexSearch,
+				preparedFishIndexCheck,preparedFishMaxLengthSearch, preparedFishCatchDeleteById);
 	}
 }
