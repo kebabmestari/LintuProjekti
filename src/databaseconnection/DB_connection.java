@@ -34,9 +34,11 @@ public class DB_connection {
 	/**
 	 * Kalahavainnon preparaatit
 	 */
+	private PreparedStatement preparedFishCatchDataSearch=null;
 	private PreparedStatement preparedFishIndexCheck=null;
 	private PreparedStatement preparedFishIndexSearch=null;
 	private PreparedStatement preparedFishMaxLengthSearch=null;
+	private PreparedStatement preparedFishCatchDuplicateDelete=null;
 	private PreparedStatement preparedFishCatchDeleteById=null;
 	
 	private PreparedStatement preparedTownSearch=null;
@@ -85,6 +87,11 @@ public class DB_connection {
 			String townSearch="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
 			preparedTownSearch=con.prepareStatement(townSearch);
 			
+			String fishCatchDataSearch="SELECT kala.nimi, pituus, paikka, paivamaara "+
+					"FROM kala, kalahavainto "+
+					"WHERE kala.id=kalaid AND havaitsija=? AND YEAR(paivamaara)=?;";
+			preparedFishCatchDataSearch=con.prepareStatement(fishCatchDataSearch);
+			
 			String fishIndexCheck="SELECT COUNT(*) AS lkm, kalaid "+
 								"FROM kalahavainto "+
 								"WHERE havaitsija=? AND YEAR(paivamaara)=? "+
@@ -106,14 +113,17 @@ public class DB_connection {
 			"ORDER BY paivamaara desc;";
 			preparedFishMaxLengthSearch=con.prepareStatement(fishMaxLenghtIdSearch);
 			
-			String deleteFishCatch="DELETE FROM kalahavainto"+
+			String deleteduplicateFishCatch="DELETE FROM kalahavainto"+
 			" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?";
-			preparedFishCatchDeleteById=con.prepareStatement(deleteFishCatch);
+			preparedFishCatchDuplicateDelete=con.prepareStatement(deleteduplicateFishCatch);
+			
+			String deleteFishCatchBiId="DELETE FROM kalahavainto WHERE id=? AND havaitsija=?;";
+			preparedFishCatchDeleteById=con.prepareStatement(deleteFishCatchBiId);
 			
 			String insertUserSql="INSERT INTO kayttaja(nimi,salasana) VALUES (?,?);";
 			insertUser=con.prepareStatement(insertUserSql);
 			
-			String getUserIdSql="SELECT id FROM kayttaja WHERE nimi=?;";
+			String getUserIdSql="SELECT id FROM kayttaja WHERE nimi=? AND salasana=?;";
 			getUserId=con.prepareStatement(getUserIdSql);
 			
 			return true;
@@ -183,19 +193,24 @@ public class DB_connection {
 	
 	/**
 	 * Lis‰‰ parametrina annetun fongatun kalan tiedot tietokantaan.
-	 * Jos sin‰ vuonna on jo kyseinen laji saatu, havainnot p‰ivitet‰‰n
+	 * Jos sin‰ vuonna on jo kyseinen laji saatu, havainnot p‰ivitet‰‰n.
+	 * Palauttaa havainnon id:n
 	 * @param fishCatch Kalahavainto, joka halutaan lis‰t‰
+	 * @return havainnon id
 	 */
-	public void insertFishCatch(Kalahavainto fishCatch){
-		SQLOperations.insertHavainto(fishCatch, con);
+	public int insertFishCatch(Kalahavainto fishCatch){
+		return SQLOperations.insertHavainto(fishCatch, con);
 	}
 	
 	/**
 	 * Lis‰‰ lintuhavainnon tietokantaan. Mik‰li oli n‰hty jo laji sin‰ p‰iv‰n‰,
 	 * havainto vain p‰ivitet‰‰n uusilla tiedoilla.
+	 * Palauttaa havainnon id:n
+	 * @param birdWatch, joka halutaan lis‰t‰
+	 * @return havainnon id
 	 */
-	public void insertBirdWatch(Lintuhavainto birdWatch){
-		SQLOperations.insertHavainto(birdWatch, con);
+	public int insertBirdWatch(Lintuhavainto birdWatch){
+		return SQLOperations.insertHavainto(birdWatch, con);
 	}
 	
 	/**
@@ -289,7 +304,7 @@ public class DB_connection {
 	/**
 	 * Lis‰‰ parametrina annetun kalan,
 	 * mik‰li sit‰ ei viel‰ ole tietokannassa
-	 * @param fish
+	 * @param fish, joka lis‰t‰‰n
 	 */
 	public void insertFish(Kala fish){
 		ArrayList<Insertable> fishArray=new ArrayList<>();
@@ -328,8 +343,18 @@ public class DB_connection {
 	 * @param vuosi, vuosi, jolta haetaan indeksi‰
 	 * @return fongausindeksi
 	 */
-	public int getFishCatchIndex(Kayttaja user, int vuosi){
+	public int[] getFishCatchIndex(Kayttaja user, int vuosi){
 		return SQLOperations.getFongoIndex(user, vuosi, preparedFishIndexSearch,
-				preparedFishIndexCheck,preparedFishMaxLengthSearch, preparedFishCatchDeleteById);
+				preparedFishIndexCheck,preparedFishMaxLengthSearch, preparedFishCatchDuplicateDelete);
+	}
+	
+	/**
+	 * Poistaa kalahavainnon, jonka id on parametrina annettu.
+	 * Palauttaa tiedon, montako rivi‰ poistettiin tai poikkeustapauksessa -1
+	 * @param id kalahavainnon id
+	 * @return poistettujen rivien m‰‰r‰ tai -1 poikkeustapauksessa
+	 */
+	public int deleteFishCatch(int id, Kayttaja user) {
+		return SQLOperations.deleteFishCatch(id, user, preparedFishCatchDeleteById);
 	}
 }

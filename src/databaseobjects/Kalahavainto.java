@@ -60,6 +60,10 @@ public class Kalahavainto implements Havainto {
 	public int getId() {
 		return id;
 	}
+	
+	public void setId(int id){
+		this.id=id;
+	}
 
 	public int getHavaitsija() {
 		return havaitsija;

@@ -29,27 +29,29 @@ public class Test {
 	//	lisaaKunnat(lueKunnat(true), connection); //toimii
 	//	lisaaKalat(lueKalat(true),connection);
 	//	lintuhavaintoTesti(connection);
-	//	kalahavaintotesti(connection);
+		kalahavaintotesti(connection);
 		testik‰ytt‰j‰(connection);
 		connection.disconnect();
 	}
 	
 	public static void kalahavaintotesti(DB_connection connection) {
-		int id=connection.searchFishId("hauki");
-		System.out.println("hauki "+id);
 		try {
 			Kalahavainto kh=new Kalahavainto("Kaarina", 25, "ahven",1,new Paivamaara("3.5.2016"), connection);
 			System.out.println("Kalaid: "+kh.getKalaid()+" P‰iv‰m‰‰r‰: "+kh.getPvm().toString());
 			System.out.println(((Havainto)kh).getUniqueAttributesWithValues());
-			connection.insertFishCatch(kh);
+			int havaintoId= connection.insertFishCatch(kh);
+			kh.setId(havaintoId);
+			System.out.println("Havainnon id "+havaintoId);
 			Kayttaja user=new Kayttaja(1,"Jossi","salainen");
-			System.out.println(connection.getFishCatchIndex(user, 2016));
+			int[] fongo=connection.getFishCatchIndex(user, 2016);
+			System.out.println("Fongoindeksi " +fongo[0]+
+					" lajeja "+fongo[1]+" pituus "+fongo[2]);
+			//int i=connection.deleteFishCatch(havaintoId, user);
+			//System.out.println("Poistettu "+i);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		id=connection.searchFishId("ahven");
-		System.out.println("ahven "+id);
 	}
 
 	public static void lintuhavaintoTesti(DB_connection connection){

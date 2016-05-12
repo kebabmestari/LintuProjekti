@@ -10,10 +10,10 @@ import java.util.regex.Pattern;
 import databaseobjects.Havainto;
 import databaseobjects.Insertable;
 import databaseobjects.Kala;
+import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
-
 import java.sql.PreparedStatement;
 
 public class SQLOperations {
@@ -183,14 +183,14 @@ public class SQLOperations {
 	 * Lis‰‰ lintu- tai kalahavainnon tietokantaan.
 	 * @param havainto
 	 * @param con
-	 * @return lis‰ttyjen rivien m‰‰r‰, jos error -1, jos p‰ivitys 0
+	 * @return havainnon id, jos error -1
 	 */
 	public static int insertHavainto(Havainto havainto, Connection con){
 		int id=havaintoIdIfAlreadyInTable(havainto, con);
 		if(id>0){
 			System.out.println("P‰ivitet‰‰n");
 			updateHavainto(havainto, id, con);
-			return 0;
+			return id;
 		}else if(id==-1){
 			return -1;
 		}else{	
@@ -198,7 +198,8 @@ public class SQLOperations {
 			String sql="INSERT INTO "+havainto.toInsertHeader()+" VALUES "+havainto.toInsertableString()+";";
 			try {
 				Statement stm=con.createStatement();
-				return stm.executeUpdate(sql);
+				stm.executeUpdate(sql);
+				return havaintoIdIfAlreadyInTable(havainto, con);
 			} catch (SQLException e) {
 				System.err.println("Havainnon lis‰ys ei onnistu");
 				e.printStackTrace();
@@ -224,6 +225,14 @@ public class SQLOperations {
 		}
 	}
 	
+	/**
+	 * Palauttaa havainnon id:n, jos sellainen on tietokannassa.
+	 * Mik‰li ei, palautetaan 0
+	 * Mik‰li poikkeus, -1
+	 * @param havainto
+	 * @param con
+	 * @return havainnon id tai 0 jos ei ole tai -1 jos poikeus
+	 */
 	public static int havaintoIdIfAlreadyInTable(Havainto havainto, Connection con){
 		String sql="SELECT id FROM "+havainto.getTable()+
 				" WHERE "+havainto.getUniqueAttributesWithValues()+";";
@@ -245,6 +254,15 @@ public class SQLOperations {
 		
 	}
 	
+	/**
+	 * Lis‰‰ annetun k‰ytt‰j‰n, jos k‰ytt‰j‰nimi vapaa.
+	 * Palauttaa k‰ytt‰j‰n id:n.
+	 * @param user
+	 * @param insertUser
+	 * @param getUserId
+	 * @param con
+	 * @return k‰ytt‰j‰n id tai -2 jos nimi jo k‰ytˆss‰, -1 jos poikkeus
+	 */
 	public static int insertUser(Kayttaja user, PreparedStatement insertUser, PreparedStatement getUserId, Connection con) {
 		if(!isInsrtableAlreadyInTable(user, con)){
 			try{
@@ -260,14 +278,21 @@ public class SQLOperations {
 		return -2;
 	}
 	
+	/**
+	 * Etsii ja palauttaa k‰ytt‰j‰n id:n, mik‰li k‰ytt‰j‰nimi ja salasana t‰sm‰‰
+	 * @param user
+	 * @param getUserId
+	 * @return k‰ytt‰j‰n id tai 0 jos ei ole tai -1 poikkeus
+	 */
 	public static int getUserId(Kayttaja user, PreparedStatement getUserId){	
 		try{
 			getUserId.setString(1, user.getNimi());
+			getUserId.setString(2, user.getSalasana());
 			ResultSet rs=getUserId.executeQuery();
 			if(rs.next()){
 				return rs.getInt("id");
 			}
-			return -1;
+			return 0;
 		}catch(SQLException e){
 			e.printStackTrace();
 			return -1;
@@ -339,6 +364,23 @@ public class SQLOperations {
 		}
 	}
 	
+	public ArrayList<Kalahavainto> getFishCatchData(Kayttaja user, int vuosi, PreparedStatement catchData) {
+		ArrayList<Kalahavainto> catchArray=new ArrayList<>();
+		try {
+			catchData.setInt(1, user.getId());
+			catchData.setInt(1, vuosi);
+			ResultSet rs=catchData.executeQuery();
+			while(rs.next()){
+			//	catchArray.add(new Kalahavainto(paikka, pituus, kalaid, havaitsija, pvm))
+				//TODO mit‰ vittua
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @param user
@@ -346,33 +388,40 @@ public class SQLOperations {
 	 * @param fishIndexSearch
 	 * @param fishIndexCheck
 	 * @param fishMaxLengthId
-	 * @param delete
-	 * @return fongauksen indeksi
+	 * @param deleteDuplicate 
+	 * @return fongauksen indeksi int[0], kalojen lukum‰‰r‰ int[1] ja pituuksien summa int[2]
 	 */
-	public static int getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
-			PreparedStatement fishIndexCheck, PreparedStatement fishMaxLengthId, PreparedStatement delete){
+	public static int[] getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
+			PreparedStatement fishIndexCheck, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate){
+		int[] fongoList=new int[3];
 		ArrayList<Integer> kalaidArray=checkForDuplicates(fishIndexCheck, user, vuosi);
 		if(kalaidArray.get(0)>0){
 			for (int kalaid:kalaidArray){
 				if(kalaid>0){
-					removeSmallerDuplicates(kalaid, user, vuosi, fishMaxLengthId, delete);
+					removeSmallerDuplicates(kalaid, user, vuosi, fishMaxLengthId, deleteDuplicate);
 				}
 			}
 		}else if(kalaidArray.get(0)==-1){
-			return -1;
+			fongoList[0]=fongoList[1]=fongoList[2]=-1;
+			return fongoList;
 		}
 		try {
 			fishIndexSearch.setInt(1, user.getId());
 			fishIndexSearch.setInt(2, vuosi);
 			ResultSet rs=fishIndexSearch.executeQuery();
 			if(rs.next()){
-				return rs.getInt("pituus")*rs.getInt("lkm");	
+				fongoList[1]=rs.getInt("lkm");
+				fongoList[2]=rs.getInt("pituus");
+				fongoList[0]=fongoList[1]*fongoList[2];
+				return fongoList;	
 			}else{
-				return 0;
+				fongoList[0]=fongoList[1]=fongoList[2]=0;
+				return fongoList;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return -1;
+			fongoList[0]=fongoList[1]=fongoList[2]=-1;
+			return fongoList;
 		}
 	}
 	
@@ -383,9 +432,9 @@ public class SQLOperations {
 	 * @param user k‰ytt‰j‰, jonka fongoja poistetaan
 	 * @param vuosi 
 	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksilˆiden id:t aikaj‰rjestyksess‰
-	 * @param deleteFishCatchById, p‰ivitys, joka poistaa havainnot anneulta k‰ytt‰j‰lt‰, lajilta ja vuodelta, mik‰li id on eri
+	 * @param deleteDuplicate, p‰ivitys, joka poistaa havainnot anneulta k‰ytt‰j‰lt‰, lajilta ja vuodelta, mik‰li id on eri
 	 */
-	public static void removeSmallerDuplicates(int kalaid, Kayttaja user, int vuosi, PreparedStatement fishMaxLengthId, PreparedStatement deleteFishCatchById) {
+	public static void removeSmallerDuplicates(int kalaid, Kayttaja user, int vuosi, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate) {
 		try{
 			fishMaxLengthId.setInt(1, user.getId());
 			fishMaxLengthId.setInt(2, kalaid);
@@ -397,17 +446,26 @@ public class SQLOperations {
 			if(rs.next()){
 				int id=rs.getInt("k.id");
 				System.out.println(id);
-				deleteFishCatchById.setInt(1, user.getId());
-				deleteFishCatchById.setInt(2, kalaid);
-				deleteFishCatchById.setInt(3, vuosi);
-				deleteFishCatchById.setInt(4, id);
-				deleteFishCatchById.executeUpdate();
+				deleteDuplicate.setInt(1, user.getId());
+				deleteDuplicate.setInt(2, kalaid);
+				deleteDuplicate.setInt(3, vuosi);
+				deleteDuplicate.setInt(4, id);
+				deleteDuplicate.executeUpdate();
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Tarkistaa, onko virheellisi‰ havaintoja p‰‰ssyt tietokantaan.
+	 * Vain yksi lajin ilmoitus saa olla vuodessa k‰ytt‰j‰‰ kohti.
+	 * Palauttaa kalalajien id:t, joilla esiintyy virheellisi‰.
+	 * @param fishIndexCheck kysely, joka palauttaa pisimm‰n yksilˆn id:n, jos lajista on virh. duplikaatteja
+	 * @param user, k‰ytt‰j‰, jonka havainnot tarkistetaan
+	 * @param vuosi, jota tarkistus koskee
+	 * @return virheelliset kalaid:t, jos ei ole, [0]=0, jos poikkeus [0]=-1
+	 */
 	public static ArrayList<Integer> checkForDuplicates(PreparedStatement fishIndexCheck, Kayttaja user, int vuosi){
 		ArrayList<Integer> idArray=new ArrayList<>();
 		try {
@@ -432,5 +490,23 @@ public class SQLOperations {
 		}
 		return idArray;
 		
+	}
+	
+	/**
+	 * Poistaa parametrina annetun id:n mukaisen kalahavinnon.
+	 * @param id kalahavainnon id
+	 * @param preparedFishCatchDeleteById
+	 * @return poistettujen rivien m‰‰r‰ tai -1 jos poikkeus
+	 */
+	public static int deleteFishCatch(int id, Kayttaja user, PreparedStatement preparedFishCatchDeleteById) {
+		try{
+			preparedFishCatchDeleteById.setInt(1, id);
+			preparedFishCatchDeleteById.setInt(2, user.getId());
+			int i=preparedFishCatchDeleteById.executeUpdate();
+			return i;
+		}catch(SQLException e){
+			e.printStackTrace();
+			return -1;
+		}
 	}
 }
