@@ -30,6 +30,7 @@ public class DB_connection {
 	
 	private PreparedStatement preparedFishNameSearch=null;
 	private PreparedStatement preparedFishIdSearch=null;
+	private PreparedStatement preparedGetFishName=null;
 	
 	/**
 	 * Kalahavainnon preparaatit
@@ -84,12 +85,15 @@ public class DB_connection {
 			fishSearch="SELECT id FROM kala WHERE nimi=? ;";
 			preparedFishIdSearch=con.prepareStatement(fishSearch);
 			
+			String getFishName="SELECT nimi FROM kala WHERE id=?;";
+			preparedGetFishName=con.prepareStatement(getFishName);
+			
 			String townSearch="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
 			preparedTownSearch=con.prepareStatement(townSearch);
 			
-			String fishCatchDataSearch="SELECT kala.nimi, pituus, paikka, paivamaara "+
-					"FROM kala, kalahavainto "+
-					"WHERE kala.id=kalaid AND havaitsija=? AND YEAR(paivamaara)=?;";
+			String fishCatchDataSearch="SELECT * "+
+					"FROM kalahavainto "+
+					"WHERE havaitsija=? AND YEAR(paivamaara)=?;";
 			preparedFishCatchDataSearch=con.prepareStatement(fishCatchDataSearch);
 			
 			String fishIndexCheck="SELECT COUNT(*) AS lkm, kalaid "+
@@ -349,6 +353,20 @@ public class DB_connection {
 	}
 	
 	/**
+	 * Palauttaa parametrina annetun vuoden ja käyttäjän havainnot
+	 * loppukäyttäjän tarvimassa JSON-formaatissa
+	 * KESKEN!!
+	 * @param user
+	 * @param vuosi
+	 * @return
+	 */
+	public String getFishCatchData(Kayttaja user, int vuosi){
+		ArrayList<Kalahavainto> catchArray=SQLOperations.getFishCatchData(user, vuosi, preparedFishCatchDataSearch);
+		//TODO Array -> JSON
+		return null;
+	}
+	
+	/**
 	 * Poistaa kalahavainnon, jonka id on parametrina annettu.
 	 * Palauttaa tiedon, montako riviä poistettiin tai poikkeustapauksessa -1
 	 * @param id kalahavainnon id
@@ -356,5 +374,15 @@ public class DB_connection {
 	 */
 	public int deleteFishCatch(int id, Kayttaja user) {
 		return SQLOperations.deleteFishCatch(id, user, preparedFishCatchDeleteById);
+	}
+	
+	/**
+	 * Palauttaa kalan id:tä vastaavan nimen
+	 * Null, jos exception tai ei kalaa
+	 * @param kalaid
+	 * @return kalan nimi tai null
+	 */
+	public String getFishNameById(int kalaid) {
+		return SQLOperations.getFishNameById(kalaid, preparedGetFishName);
 	}
 }

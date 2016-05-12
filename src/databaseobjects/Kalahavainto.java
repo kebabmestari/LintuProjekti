@@ -10,10 +10,10 @@ public class Kalahavainto implements Havainto {
 	private int havaitsija;
 	private Paivamaara pvm;
 	
-	public Kalahavainto(String paikka, int pituus, String kala, int havaitsija, Paivamaara pvm, DB_connection con){
+	public Kalahavainto(String paikka, int pituus, String kala, int havaitsija, Paivamaara pvm, DB_connection conection){
 		this.paikka=paikka;
 		this.pituus=pituus;
-		this.kalaid=con.searchFishId(kala);
+		this.kalaid=conection.searchFishId(kala);
 		this.havaitsija=havaitsija;
 		this.pvm=pvm;
 	}
@@ -100,6 +100,21 @@ public class Kalahavainto implements Havainto {
 	@Override
 	public String getAllUpdatableAttributesWithValues() {
 		return "paikka='"+paikka+"', pituus='"+pituus+"', paivamaara='"+pvm+"'";
+	}
+	
+	/**
+	 * Palauttaa olion JSON-formaatissa,
+	 * kalaid:n tilalla on kalan nimi, eikä havaitsijaa ole
+	 * @param connection
+	 * @return olio JSON-formaatissa
+	 */
+	public String toJSON(DB_connection connection){
+		return "{\n"+
+				"\"id\":"+"\""+id+"\",\n"+
+				"\"kala\":"+"\""+connection.getFishNameById(kalaid)+"\",\n"+
+				"\"pituus\":\""+pituus+"\",\n"+
+				"\"paikka\":\""+paikka+"\",\n"+
+				"\"paivamaara\":\""+pvm.toJSON()+"\"\n}";
 	}
 	
 }

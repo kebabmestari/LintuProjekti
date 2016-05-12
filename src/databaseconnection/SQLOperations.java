@@ -14,6 +14,8 @@ import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
+import databaseobjects.Paivamaara;
+
 import java.sql.PreparedStatement;
 
 public class SQLOperations {
@@ -364,21 +366,32 @@ public class SQLOperations {
 		}
 	}
 	
-	public ArrayList<Kalahavainto> getFishCatchData(Kayttaja user, int vuosi, PreparedStatement catchData) {
+	/**
+	 * Palauttaa vuoden ja käyttäjän havainnot listana
+	 * @param user, jonka havaintoja haetaan
+	 * @param vuosi
+	 * @param catchData, kysely
+	 * @return lista havainnoista
+	 */
+	public static ArrayList<Kalahavainto> getFishCatchData(Kayttaja user, int vuosi, PreparedStatement catchData) {
 		ArrayList<Kalahavainto> catchArray=new ArrayList<>();
 		try {
 			catchData.setInt(1, user.getId());
 			catchData.setInt(1, vuosi);
 			ResultSet rs=catchData.executeQuery();
 			while(rs.next()){
-			//	catchArray.add(new Kalahavainto(paikka, pituus, kalaid, havaitsija, pvm))
-				//TODO mitä vittua
+				try {
+					catchArray.add(new Kalahavainto(rs.getInt("id"), rs.getString("paikka"),
+							rs.getInt("pituus"),rs.getInt("kalaid"), rs.getInt("havaitsija"), new Paivamaara(rs.getString("pvm"))));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			// TODO Käyttäjän informointi?
 			e.printStackTrace();
 		}
-		return null;
+		return catchArray;
 	}
 	
 	/**
@@ -508,5 +521,25 @@ public class SQLOperations {
 			e.printStackTrace();
 			return -1;
 		}
+	}
+	/**
+	 * Palauttaa kalan nimen tai null jos fail
+	 * @param kalaid
+	 * @param getFishName
+	 * @return kalan nimi tai null
+	 */
+	public static String getFishNameById(int kalaid, PreparedStatement getFishName) {
+		try {
+			getFishName.setInt(1, kalaid);
+			ResultSet rs=getFishName.executeQuery();
+			if(rs.next()){
+				return rs.getString("nimi");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		return null;
 	}
 }

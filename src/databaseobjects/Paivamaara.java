@@ -101,10 +101,21 @@ public class Paivamaara {
 		return vvvv;
 	}
 	
+	/**
+	 * Tietokannan k‰ytt‰m‰ muoto 2016-5-2
+	 * @return p‰iv‰m‰‰r‰ muodossa 2016-5-2
+	 */
 	@Override
 	public String toString(){
 		return vvvv+"-"+kk+"-"+pp;
 		
 	}
 	
+	/**
+	 * Palauttaa p‰iv‰m‰‰r‰n l‰nsimaiseen tapaan 2.5.2016
+	 * @return p‰iv‰m‰‰r‰ muodossa 2.5.2016
+	 */
+	public String toJSON() {
+		return pp+"."+kk+"."+vvvv;
+	}
 }

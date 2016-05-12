@@ -30,7 +30,7 @@ public class Test {
 	//	lisaaKalat(lueKalat(true),connection);
 	//	lintuhavaintoTesti(connection);
 		kalahavaintotesti(connection);
-		testik‰ytt‰j‰(connection);
+	//	testik‰ytt‰j‰(connection);
 		connection.disconnect();
 	}
 	
@@ -38,9 +38,10 @@ public class Test {
 		try {
 			Kalahavainto kh=new Kalahavainto("Kaarina", 25, "ahven",1,new Paivamaara("3.5.2016"), connection);
 			System.out.println("Kalaid: "+kh.getKalaid()+" P‰iv‰m‰‰r‰: "+kh.getPvm().toString());
-			System.out.println(((Havainto)kh).getUniqueAttributesWithValues());
+			System.out.println(kh.toJSON(connection));
 			int havaintoId= connection.insertFishCatch(kh);
 			kh.setId(havaintoId);
+			System.out.println(kh.toJSON(connection));
 			System.out.println("Havainnon id "+havaintoId);
 			Kayttaja user=new Kayttaja(1,"Jossi","salainen");
 			int[] fongo=connection.getFishCatchIndex(user, 2016);
@@ -57,12 +58,12 @@ public class Test {
 	public static void lintuhavaintoTesti(DB_connection connection){
 		Lintuhavainto lintuhavainto = null;
 		try {
-			lintuhavainto = new Lintuhavainto("kiuru", "Turku", new Paivamaara(22,4,2016),1,false,true, connection);
+			lintuhavainto = new Lintuhavainto("siritt‰j‰", "Turku", new Paivamaara("12.5.2016"),1,false,true, connection);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Otsikko "+lintuhavainto.toInsertHeader()+"ja arvot"+ lintuhavainto.toInsertableString());
+		System.out.println("Otsikko "+lintuhavainto.toInsertHeader()+"\nja arvot"+ lintuhavainto.toInsertableString());
 		connection.insertBirdWatch(lintuhavainto);
 	}
 	
