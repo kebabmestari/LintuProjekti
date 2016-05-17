@@ -377,12 +377,12 @@ public class SQLOperations {
 		ArrayList<Kalahavainto> catchArray=new ArrayList<>();
 		try {
 			catchData.setInt(1, user.getId());
-			catchData.setInt(1, vuosi);
+			catchData.setInt(2, vuosi);
 			ResultSet rs=catchData.executeQuery();
 			while(rs.next()){
 				try {
 					catchArray.add(new Kalahavainto(rs.getInt("id"), rs.getString("paikka"),
-							rs.getInt("pituus"),rs.getInt("kalaid"), rs.getInt("havaitsija"), new Paivamaara(rs.getString("pvm"))));
+							rs.getInt("pituus"),rs.getInt("kalaid"), rs.getInt("havaitsija"), new Paivamaara(rs.getString("paivamaara"))));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

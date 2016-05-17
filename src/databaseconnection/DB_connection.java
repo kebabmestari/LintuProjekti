@@ -14,6 +14,7 @@ import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
 import databaseobjects.Lintuhavainto;
+import lib.Operations;
 
 public class DB_connection {
 	private final String DB_URI;
@@ -366,8 +367,7 @@ public class DB_connection {
 	 */
 	public String getFishCatchData(Kayttaja user, int vuosi){
 		ArrayList<Kalahavainto> catchArray=SQLOperations.getFishCatchData(user, vuosi, preparedFishCatchDataSearch);
-		//TODO Array -> JSON
-		return null;
+		return Operations.arrayToJSON(catchArray, this);
 	}
 	
 	/**
