@@ -17,17 +17,17 @@ public class Paivamaara {
 		kk=kuukausi;
 		vvvv=vuosi;
 		if(!isValid()){
-			throw new Exception("Virheellinen p‰iv‰m‰‰r‰, meni yli rajojen");
+			throw new Exception("Virheellinen p√§iv√§m√§√§r√§, meni yli rajojen");
 		}
 	}
 	
 	/**
-	 * Muuttaa merkkijonon p‰iv‰m‰‰r‰ksi, mik‰li p‰iv‰m‰‰r‰ on kirjoitettu j‰rjestyksess‰
-	 * p‰iv‰, kuukausi, vuosi tai vuosi, kuukausi, p‰iv‰ ja erotinmerkkin‰ piste tai viiva.
-	 * Lis‰ksi alle kymmenen voi olla joko 02 tai 2 muodossa.
-	 * Mik‰li annettu merkijono ei ole oikea paiv‰m‰‰r‰, heitet‰‰n poikkeus.
+	 * Muuttaa merkkijonon p√§iv√§m√§√§r√§ksi, mik√§li p√§iv√§m√§√§r√§ on kirjoitettu j√§rjestyksess√§
+	 * p√§iv√§, kuukausi, vuosi tai vuosi, kuukausi, p√§iv√§ ja erotinmerkkin√§ piste tai viiva.
+	 * Lis√§ksi alle kymmenen voi olla joko 02 tai 2 muodossa.
+	 * Mik√§li annettu merkijono ei ole oikea paiv√§m√§√§r√§, heitet√§√§n poikkeus.
 	 * @param paivamaara muotoa 2.2.2002 tai 02.02.2002 tai 2002.2.2 tai 2-2-2002 tai 2002-02-02
-	 * @throws Exception virheellinen p‰iv‰m‰‰r‰
+	 * @throws Exception virheellinen p√§iv√§m√§√§r√§
 	 */
 	public Paivamaara(String paivamaara) throws Exception{
 		String[] pvm=null;
@@ -36,12 +36,12 @@ public class Paivamaara {
 		}else if(paivamaara.contains("-")){
 			pvm=paivamaara.split("-");
 		}else{
-			throw new Exception("Virheellinen p‰iv‰m‰‰r‰, k‰yt‰ erotinmerkkin‰ . tai -");
+			throw new Exception("Virheellinen p√§iv√§m√§√§r√§, k√§yt√§ erotinmerkkin√§ . tai -");
 		}
 		try{
 			if(pvm.length != 3){
 				printStringArray(pvm);
-				throw new Exception("Virheellinen p‰iv‰m‰‰r‰, v‰‰r‰ m‰‰r‰ numeroita");
+				throw new Exception("Virheellinen p√§iv√§m√§√§r√§, v√§√§r√§ m√§√§r√§ numeroita");
 			}
 			pp=Integer.parseInt(pvm[0]);
 			kk=Integer.parseInt(pvm[1]);
@@ -52,11 +52,11 @@ public class Paivamaara {
 				pp=aupuvuosi;
 				if(!isValid()){
 					printStringArray(pvm);
-					throw new Exception("Virheellinen p‰iv‰m‰‰r‰, lukualue meni yli sallittujen rajojen");
+					throw new Exception("Virheellinen p√§iv√§m√§√§r√§, lukualue meni yli sallittujen rajojen");
 				}
 			}
 		}catch (NumberFormatException e){
-			throw new Exception("Virheellinen p‰iv‰m‰‰r‰ sis‰lsi v‰‰ri‰ merkkej‰");
+			throw new Exception("Virheellinen p√§iv√§m√§√§r√§ sis√§lsi v√§√§ri√§ merkkej√§");
 		}
 	}
 	
@@ -69,7 +69,7 @@ public class Paivamaara {
 	}
 	
 	/**
-	 * Tarkastaa, ett‰ p‰iv‰m‰‰r‰ on validi
+	 * Tarkastaa, ett√§ p√§iv√§m√§√§r√§ on validi
 	 * @return onko validi
 	 */
 	private boolean isValid(){
@@ -102,8 +102,8 @@ public class Paivamaara {
 	}
 	
 	/**
-	 * Tietokannan k‰ytt‰m‰ muoto 2016-5-2
-	 * @return p‰iv‰m‰‰r‰ muodossa 2016-5-2
+	 * Tietokannan k√§ytt√§m√§ muoto 2016-5-2
+	 * @return p√§iv√§m√§√§r√§ muodossa 2016-5-2
 	 */
 	@Override
 	public String toString(){
@@ -112,8 +112,8 @@ public class Paivamaara {
 	}
 	
 	/**
-	 * Palauttaa p‰iv‰m‰‰r‰n l‰nsimaiseen tapaan 2.5.2016
-	 * @return p‰iv‰m‰‰r‰ muodossa 2.5.2016
+	 * Palauttaa p√§iv√§m√§√§r√§n l√§nsimaiseen tapaan 2.5.2016
+	 * @return p√§iv√§m√§√§r√§ muodossa 2.5.2016
 	 */
 	public String toJSON() {
 		return pp+"."+kk+"."+vvvv;
