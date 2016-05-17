@@ -2,9 +2,9 @@ package databaseobjects;
 
 import databaseconnection.DB_connection;
 
-public class Lintuhavainto implements Havainto{
+public class Lintuhavainto implements Havainto, Json{
 	private int lintuid;
-	private String paikka;
+	private String paikka; //TODO kunta
 	private int id;
 	private int havaitsija;
 	private Paivamaara pvm;
@@ -116,9 +116,10 @@ public class Lintuhavainto implements Havainto{
 	}
 	
 	/**
-	 * Palauttaa havainnoon loppukäyttäjän tarvimassa 
+	 * Palauttaa havainnoon loppukäyttäjän tarvimassa muodossa
 	 * @return JSON
 	 */
+	@Override
 	public String toJSON(DB_connection connection) {
 		return "{\n"+
 				"\"id\":\""+id+"\",\n"+
