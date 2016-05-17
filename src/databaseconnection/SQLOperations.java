@@ -542,4 +542,27 @@ public class SQLOperations {
 		}
 		return null;
 	}
+	
+	/**
+	 * Palauttaa linnun id vastaavan nimen
+	 * Palauttaa null jos error tai lintua ei ole 
+	 * @param lintuid
+	 * @param preparedGetBirdName
+	 * @return linnun nimi
+	 */
+	public static String getBirdNameById(int lintuid, PreparedStatement preparedGetBirdName) {
+		try{
+			preparedGetBirdName.setInt(1, lintuid);
+			ResultSet rs=preparedGetBirdName.executeQuery();
+			if(rs.next()){
+				String lintu=rs.getString("nimi");
+				rs.close();
+				return lintu;
+			}
+		} catch(SQLException e){
+			//TODO 
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
