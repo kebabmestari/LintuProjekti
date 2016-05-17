@@ -2,16 +2,16 @@ package databaseobjects;
 
 import databaseconnection.DB_connection;
 
-public class Kalahavainto implements Havainto {
+public class Kalahavainto implements Havainto, Json {
 	private int id;
-	private String paikka;
+	private Kunta paikka;
 	private int pituus;
 	private int kalaid;
 	private int havaitsija;
 	private Paivamaara pvm;
 	
 	public Kalahavainto(String paikka, int pituus, String kala, int havaitsija, Paivamaara pvm, DB_connection conection){
-		this.paikka=paikka;
+		this.paikka=new Kunta(paikka);
 		this.pituus=pituus;
 		this.kalaid=conection.searchFishId(kala);
 		this.havaitsija=havaitsija;
@@ -20,25 +20,27 @@ public class Kalahavainto implements Havainto {
 	
 	public Kalahavainto(int id, String paikka, int pituus, int kalaid, int havaitsija, Paivamaara pvm) {
 		this.id = id;
-		this.paikka = paikka;
+		this.paikka = new Kunta(paikka);
 		this.pituus = pituus;
 		this.kalaid = kalaid;
 		this.havaitsija = havaitsija;
+		this.pvm=pvm;
 	}
 
 	public Kalahavainto(String paikka, int pituus, int kalaid, int havaitsija, Paivamaara pvm) {
-		this.paikka = paikka;
+		this.paikka = new Kunta(paikka);
 		this.pituus = pituus;
 		this.kalaid = kalaid;
 		this.havaitsija = havaitsija;
+		this.pvm=pvm;
 	}
 
 	public String getPaikka() {
-		return paikka;
+		return paikka.toString();
 	}
 
 	public void setPaikka(String paikka) {
-		this.paikka = paikka;
+		this.paikka = new Kunta(paikka);
 	}
 
 	public int getPituus() {
@@ -79,7 +81,7 @@ public class Kalahavainto implements Havainto {
 
 	@Override
 	public String toInsertableString() {
-		return "('"+paikka+"','"+pituus+"','"+kalaid+"','"+pvm.toString()+"','"+havaitsija+"')";
+		return "('"+paikka.toString()+"','"+pituus+"','"+kalaid+"','"+pvm.toString()+"','"+havaitsija+"')";
 	}
 
 	@Override
@@ -99,22 +101,28 @@ public class Kalahavainto implements Havainto {
 
 	@Override
 	public String getAllUpdatableAttributesWithValues() {
-		return "paikka='"+paikka+"', pituus='"+pituus+"', paivamaara='"+pvm+"'";
+		return "paikka='"+paikka.toString()+"', pituus='"+pituus+"', paivamaara='"+pvm+"'";
 	}
 	
 	/**
 	 * Palauttaa olion JSON-formaatissa,
-	 * kalaid:n tilalla on kalan nimi, eik� havaitsijaa ole
+	 * kalaid:n tilalla on kalan nimi, eik� havaitsijaa ole
 	 * @param connection
 	 * @return olio JSON-formaatissa
 	 */
+	@Override
 	public String toJSON(DB_connection connection){
+		if(pvm==null){
+			System.out.println("Päivämäärä null");
+			return "{}";
+		}
 		return "{\n"+
 				"\"id\":"+"\""+id+"\",\n"+
 				"\"kala\":"+"\""+connection.getFishNameById(kalaid)+"\",\n"+
 				"\"pituus\":\""+pituus+"\",\n"+
-				"\"paikka\":\""+paikka+"\",\n"+
+				"\"paikka\":\""+paikka.toString()+"\",\n"+
 				"\"paivamaara\":\""+pvm.toJSON()+"\"\n}";
 	}
+
 	
 }
