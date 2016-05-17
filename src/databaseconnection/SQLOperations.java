@@ -23,10 +23,10 @@ public class SQLOperations {
 	/**
 	 * Onko akkosellinen merkkijono
 	 * @param s, tutkittava merkkijono
-	 * @return sis‰lt‰‰kˆ vain aakkosia
+	 * @return sis√§lt√§√§k√∂ vain aakkosia
 	 */
 	public static boolean isAlphabetic(String s){
-		if(Pattern.matches("[a-ˆA-÷]+", s)){
+		if(Pattern.matches("[a-√∂A-√ñ]+", s)){
 			return true;
 		}
 		else{
@@ -39,7 +39,7 @@ public class SQLOperations {
 	 * @return onko aakkosnumeerinen
 	 */
 	public static boolean isAlphaNumeric(String s){
-		if(Pattern.matches("[a-ˆA-÷0-9]+", s)){
+		if(Pattern.matches("[a-√∂A-√ñ0-9]+", s)){
 			return true;
 		}
 		else{
@@ -92,7 +92,7 @@ public class SQLOperations {
 				return rs.getInt("id");
 			}else{
 				return -5;
-				//TODO heitet‰‰nkˆ poikkeus kun lintua ei lˆydy????? Kyll‰!!!!
+				//TODO heitet√§√§nk√∂ poikkeus kun lintua ei l√∂ydy????? Kyll√§!!!!
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -102,7 +102,7 @@ public class SQLOperations {
 	
 	/**
 	 * Etsii kalan nimen sen alkukirjaimen perusteella
-	 * Ennustavaa syˆttˆ‰ varten
+	 * Ennustavaa sy√∂tt√∂√§ varten
 	 * @param fishBegin
 	 * @param con
 	 * @return ResultSet kaikista kaloista, jotka alkoivat annetulla merkkijonolla
@@ -134,7 +134,7 @@ public class SQLOperations {
 	 * Palauttaa kalan id:n
 	 * @param fish
 	 * @param con
-	 * @return Kalan id tai -5 jos ei lˆyty tai -1 jos error
+	 * @return Kalan id tai -5 jos ei l√∂ydy tai -1 jos error
 	 */
 	public static int searchFishId(String fish, PreparedStatement pstm){
 		try {
@@ -144,7 +144,7 @@ public class SQLOperations {
 				return rs.getInt("id");
 			}else{
 				return -5;
-				//TODO heitet‰‰nkˆ poikkeus kun kalaa ei lˆydy?????
+				//TODO heitet√§√§nk√∂ poikkeus kun kalaa ei l√∂ydy?????
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -153,7 +153,7 @@ public class SQLOperations {
 	}
 	/**
 	 * Etsii kunnan sen alkuosan perusteella
-	 * Ennustavaa syˆttˆ‰ varten
+	 * Ennustavaa sy√∂tt√∂√§ varten
 	 * @param townBegin kunnan alkuosa
 	 * @param townSearch kuntahaku
 	 * @return lista kunnista, jotka alkoivat parametrina annetulla merkkijonolla
@@ -182,7 +182,7 @@ public class SQLOperations {
 		}
 	}
 	/**
-	 * Lis‰‰ lintu- tai kalahavainnon tietokantaan.
+	 * Lis√§√§ lintu- tai kalahavainnon tietokantaan.
 	 * @param havainto
 	 * @param con
 	 * @return havainnon id, jos error -1
@@ -190,20 +190,20 @@ public class SQLOperations {
 	public static int insertHavainto(Havainto havainto, Connection con){
 		int id=havaintoIdIfAlreadyInTable(havainto, con);
 		if(id>0){
-			System.out.println("P‰ivitet‰‰n");
+			System.out.println("P√§ivitet√§√§n");
 			updateHavainto(havainto, id, con);
 			return id;
 		}else if(id==-1){
 			return -1;
 		}else{	
-			System.out.println("Lis‰t‰‰n");
+			System.out.println("Lis√§t√§√§n");
 			String sql="INSERT INTO "+havainto.toInsertHeader()+" VALUES "+havainto.toInsertableString()+";";
 			try {
 				Statement stm=con.createStatement();
 				stm.executeUpdate(sql);
 				return havaintoIdIfAlreadyInTable(havainto, con);
 			} catch (SQLException e) {
-				System.err.println("Havainnon lis‰ys ei onnistu");
+				System.err.println("Havainnon lis√§ys ei onnistu");
 				e.printStackTrace();
 				return -1;
 			}
@@ -211,7 +211,7 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * P‰ivitt‰‰ havainnon tiedot parametrina annettun havainnon tietoihin
+	 * P√§ivitt√§√§ havainnon tiedot parametrina annettun havainnon tietoihin
 	 * @param havainto
 	 * @param id
 	 */
@@ -229,8 +229,8 @@ public class SQLOperations {
 	
 	/**
 	 * Palauttaa havainnon id:n, jos sellainen on tietokannassa.
-	 * Mik‰li ei, palautetaan 0
-	 * Mik‰li poikkeus, -1
+	 * Mik√§li ei, palautetaan 0
+	 * Mik√§li poikkeus, -1
 	 * @param havainto
 	 * @param con
 	 * @return havainnon id tai 0 jos ei ole tai -1 jos poikeus
@@ -257,13 +257,13 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * Lis‰‰ annetun k‰ytt‰j‰n, jos k‰ytt‰j‰nimi vapaa.
-	 * Palauttaa k‰ytt‰j‰n id:n.
+	 * Lis√§√§ annetun k√§ytt√§j√§n, jos k√§ytt√§j√§nimi vapaa.
+	 * Palauttaa k√§ytt√§j√§n id:n.
 	 * @param user
 	 * @param insertUser
 	 * @param getUserId
 	 * @param con
-	 * @return k‰ytt‰j‰n id tai -2 jos nimi jo k‰ytˆss‰, -1 jos poikkeus
+	 * @return k√§ytt√§j√§n id tai -2 jos nimi jo k√§yt√∂ss√§, -1 jos poikkeus
 	 */
 	public static int insertUser(Kayttaja user, PreparedStatement insertUser, PreparedStatement getUserId, Connection con) {
 		if(!isInsrtableAlreadyInTable(user, con)){
@@ -281,10 +281,10 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * Etsii ja palauttaa k‰ytt‰j‰n id:n, mik‰li k‰ytt‰j‰nimi ja salasana t‰sm‰‰
+	 * Etsii ja palauttaa k√§ytt√§j√§n id:n, mik√§li k√§ytt√§j√§nimi ja salasana t√§sm√§√§
 	 * @param user
 	 * @param getUserId
-	 * @return k‰ytt‰j‰n id tai 0 jos ei ole tai -1 poikkeus
+	 * @return k√§ytt√§j√§n id tai 0 jos ei ole tai -1 poikkeus
 	 */
 	public static int getUserId(Kayttaja user, PreparedStatement getUserId){	
 		try{
@@ -302,9 +302,9 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * Lis‰‰ kaikki ne listan alkiot sit‰ vastaan tauluun,
-	 * joita ei viel‰ ole taulussa
-	 * Lis‰ksi poistaa listasta sivuvaikutuksena ne alkiot,
+	 * Lis√§√§ kaikki ne listan alkiot sit√§ vastaan tauluun,
+	 * joita ei viel√§ ole taulussa
+	 * Lis√§ksi poistaa listasta sivuvaikutuksena ne alkiot,
 	 * jotka olivat jo tietokannassa.
 	 * @param insertableArray
 	 * @param con
@@ -324,14 +324,14 @@ public class SQLOperations {
 					Statement stm=con.createStatement();
 					stm.executeUpdate(sql);
 				} catch (SQLException e) {
-					System.out.println("SQL-ongelma yritett‰ess‰ lis‰t‰ tyyppi‰ "+insertableArray.get(0).getTableName());
+					System.out.println("SQL-ongelma yritett√§ess√§ lis√§t√§ tyyppi√§ "+insertableArray.get(0).getTableName());
 					e.printStackTrace();
 				}
 			}else{
-				System.out.println("Kaikki esiintym‰t olivat jo tietokannassa, ei mit‰‰n lis‰tt‰v‰‰");
+				System.out.println("Kaikki esiintym√§t olivat jo tietokannassa, ei mit√§√§n lis√§tt√§v√§√§");
 			}
 		}else{
-			System.out.println("Tyhj‰ lista, ei mit‰‰n lis‰tt‰v‰‰");
+			System.out.println("Tyhj√§ lista, ei mit√§√§n lis√§tt√§v√§√§");
 		}
 	}
 	
@@ -360,14 +360,14 @@ public class SQLOperations {
 			pstmt.close();
 			return false;
 		} catch (SQLException e1) {
-			System.out.println("SQL-ongelma etsiess‰ tyyppi‰ "+insertable.getTableName());
+			System.out.println("SQL-ongelma etsiess√§ tyyppi√§ "+insertable.getTableName());
 			e1.printStackTrace();
 			return true;
 		}
 	}
 	
 	/**
-	 * Palauttaa vuoden ja k‰ytt‰j‰n havainnot listana
+	 * Palauttaa vuoden ja k√§ytt√§j√§n havainnot listana
 	 * @param user, jonka havaintoja haetaan
 	 * @param vuosi
 	 * @param catchData, kysely
@@ -388,7 +388,7 @@ public class SQLOperations {
 				}
 			}
 		} catch (SQLException e) {
-			// TODO K‰ytt‰j‰n informointi?
+			// TODO K√§ytt√§j√§n informointi?
 			e.printStackTrace();
 		}
 		return catchArray;
@@ -402,7 +402,7 @@ public class SQLOperations {
 	 * @param fishIndexCheck
 	 * @param fishMaxLengthId
 	 * @param deleteDuplicate 
-	 * @return fongauksen indeksi int[0], kalojen lukum‰‰r‰ int[1] ja pituuksien summa int[2]
+	 * @return fongauksen indeksi int[0], kalojen lukumÔøΩÔøΩrÔøΩ int[1] ja pituuksien summa int[2]
 	 */
 	public static int[] getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
 			PreparedStatement fishIndexCheck, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate){
@@ -439,13 +439,13 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * Poistaa tietokannasta indeksin laskemista h‰iritsev‰t virheelliset monikot.
-	 * Vain pisin lajin edustaja per vuosi per k‰ytt‰j‰ s‰ilytet‰‰n (jos kaksi, niin uudempi).
+	 * Poistaa tietokannasta indeksin laskemista h√§iritsev√§t virheelliset monikot.
+	 * Vain pisin lajin edustaja per vuosi per k√§ytt√§j√§ s√§ilytet√§√§n (jos kaksi, niin uudempi).
 	 * @param kalaid poistettavan havainnon kalalajin id
-	 * @param user k‰ytt‰j‰, jonka fongoja poistetaan
+	 * @param user k√§ytt√§j√§, jonka fongoja poistetaan
 	 * @param vuosi 
-	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksilˆiden id:t aikaj‰rjestyksess‰
-	 * @param deleteDuplicate, p‰ivitys, joka poistaa havainnot anneulta k‰ytt‰j‰lt‰, lajilta ja vuodelta, mik‰li id on eri
+	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksilÔøΩiden id:t aikaj√§rjestyksess√§
+	 * @param deleteDuplicate, p√§ivitys, joka poistaa havainnot anneulta k√§ytt√§j√§lt√§, lajilta ja vuodelta, mik√§li id on eri
 	 */
 	public static void removeSmallerDuplicates(int kalaid, Kayttaja user, int vuosi, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate) {
 		try{
@@ -471,11 +471,11 @@ public class SQLOperations {
 	}
 	
 	/**
-	 * Tarkistaa, onko virheellisi‰ havaintoja p‰‰ssyt tietokantaan.
-	 * Vain yksi lajin ilmoitus saa olla vuodessa k‰ytt‰j‰‰ kohti.
-	 * Palauttaa kalalajien id:t, joilla esiintyy virheellisi‰.
-	 * @param fishIndexCheck kysely, joka palauttaa pisimm‰n yksilˆn id:n, jos lajista on virh. duplikaatteja
-	 * @param user, k‰ytt‰j‰, jonka havainnot tarkistetaan
+	 * Tarkistaa, onko virheellisi√§ havaintoja p√§√§ssyt tietokantaan.
+	 * Vain yksi lajin ilmoitus saa olla vuodessa k√§ytt√§j√§√§ kohti.
+	 * Palauttaa kalalajien id:t, joilla esiintyy virheellisi√§.
+	 * @param fishIndexCheck kysely, joka palauttaa pisimm√§n yksil√∂n id:n, jos lajista on virh. duplikaatteja
+	 * @param user, k√§ytt√§j√§, jonka havainnot tarkistetaan
 	 * @param vuosi, jota tarkistus koskee
 	 * @return virheelliset kalaid:t, jos ei ole, [0]=0, jos poikkeus [0]=-1
 	 */
@@ -509,7 +509,7 @@ public class SQLOperations {
 	 * Poistaa parametrina annetun id:n mukaisen kalahavinnon.
 	 * @param id kalahavainnon id
 	 * @param preparedFishCatchDeleteById
-	 * @return poistettujen rivien m‰‰r‰ tai -1 jos poikkeus
+	 * @return poistettujen rivien m√§√§r√§ tai -1 jos poikkeus
 	 */
 	public static int deleteFishCatch(int id, Kayttaja user, PreparedStatement preparedFishCatchDeleteById) {
 		try{
