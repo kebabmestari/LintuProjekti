@@ -3,7 +3,7 @@ package databaseobjects;
 import databaseconnection.DB_connection;
 
 public class Lintuhavainto implements Havainto{
-	private int lintu;
+	private int lintuid;
 	private String paikka;
 	private int id;
 	private int havaitsija;
@@ -12,7 +12,7 @@ public class Lintuhavainto implements Havainto{
 	private boolean sponde;
 	
 	public Lintuhavainto(int lintu, String paikka, int havaitsija, Paivamaara pvm) {
-		this.lintu = lintu;
+		this.lintuid = lintu;
 		this.paikka = paikka;
 		this.havaitsija = havaitsija;
 		this.setPvm(pvm);
@@ -20,7 +20,7 @@ public class Lintuhavainto implements Havainto{
 	}
 	
 	public Lintuhavainto(int lintu, String paikka, int id, int havaitsija) {
-		this.lintu = lintu;
+		this.lintuid = lintu;
 		this.paikka = paikka;
 		this.id = id;
 		this.havaitsija = havaitsija;
@@ -29,7 +29,7 @@ public class Lintuhavainto implements Havainto{
 	
 	public Lintuhavainto(String lintu, String paikka, Paivamaara pvm, 
 			int havaitsija, Boolean eko, Boolean sponde, DB_connection con){
-		this.lintu=con.searchBirdId(lintu);
+		this.lintuid=con.searchBirdId(lintu);
 		this.paikka=paikka;
 		this.setPvm(pvm);
 		this.havaitsija=havaitsija;
@@ -38,7 +38,7 @@ public class Lintuhavainto implements Havainto{
 	}
 	
 	public Lintuhavainto(int lintu, String paikka, int id, int havaitsija, boolean eko, boolean sponde) {
-		this.lintu = lintu;
+		this.lintuid = lintu;
 		this.paikka = paikka;
 		this.id = id;
 		this.havaitsija = havaitsija;
@@ -47,7 +47,7 @@ public class Lintuhavainto implements Havainto{
 	}
 
 	public int getLintu() {
-		return lintu;
+		return lintuid;
 	}
 	public String getPaikka() {
 		return paikka;
@@ -55,6 +55,10 @@ public class Lintuhavainto implements Havainto{
 	public int getId() {
 		return id;
 	}
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public int getHavaitsija() {
 		return havaitsija;
 	}
@@ -71,7 +75,7 @@ public class Lintuhavainto implements Havainto{
 		this.sponde = sponde;
 	}
 	public void setLintu(int lintu) {
-		this.lintu = lintu;
+		this.lintuid = lintu;
 	}
 	public void setPaikka(String paikka) {
 		this.paikka = paikka;
@@ -87,18 +91,18 @@ public class Lintuhavainto implements Havainto{
 
 	@Override
 	public String toInsertableString(){
-		return "('"+lintu+"','"+paikka+"','"+pvm.toString()+"','"+havaitsija+"','"+(eko?1:0)+"','"+(sponde?1:0)+"')";
+		return "('"+lintuid+"','"+paikka+"','"+pvm.toString()+"','"+havaitsija+"','"+(eko?1:0)+"','"+(sponde?1:0)+"')";
 	}
 
 	@Override
 	public String toInsertHeader() {
-		return "lintuhavainto(lintu,paikka,paivamaara,havaitsija,eko,sponde)";
+		return "lintuhavainto(lintuid,paikka,paivamaara,havaitsija,eko,sponde)";
 	}
 
 
 	@Override
 	public String getUniqueAttributesWithValues() {
-		return "lintu='"+lintu+"' AND paivamaara='"+pvm.toString()+"' AND havaitsija='"+havaitsija+"'";
+		return "lintuid='"+lintuid+"' AND paivamaara='"+pvm.toString()+"' AND havaitsija='"+havaitsija+"'";
 	}
 
 	@Override
@@ -109,5 +113,20 @@ public class Lintuhavainto implements Havainto{
 	@Override
 	public String getAllUpdatableAttributesWithValues() {
 		return "paikka='"+paikka+"', eko='"+(eko?1:0)+"', sponde='"+(sponde?1:0)+"'";
+	}
+	
+	/**
+	 * Palauttaa havainnoon loppukäyttäjän tarvimassa 
+	 * @return JSON
+	 */
+	public String toJSON(DB_connection connection) {
+		return "{\n"+
+				"\"id\":\""+id+"\",\n"+
+				"\"lintu\":\""+connection.getBirdNameById(lintuid)+"\",\n"+
+				"\"paikka\":\""+paikka+"\",\n"+
+				"\"paivamaara\":\""+pvm.toJSON()+"\",\n"+
+				"\"eko\":\""+eko+"\",\n"+
+				"\"sponde\":\""+sponde+"\"\n"+
+				"}";
 	}
 }
