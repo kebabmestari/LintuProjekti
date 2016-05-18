@@ -14,6 +14,7 @@ import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
+import databaseobjects.Lintuhavainto;
 import databaseobjects.Paivamaara;
 
 import java.sql.PreparedStatement;
@@ -271,7 +272,7 @@ public class SQLOperations {
 				insertUser.setString(1, user.getNimi());
 				insertUser.setString(2, user.getSalasana());
 				insertUser.executeUpdate();
-				return getUserId(user,getUserId);
+				return logIn(user,getUserId);
 			}catch(SQLException e){
 				e.printStackTrace();
 				return -1;
@@ -282,11 +283,12 @@ public class SQLOperations {
 	
 	/**
 	 * Etsii ja palauttaa käyttäjän id:n, mikäli käyttäjänimi ja salasana täsmää
+	 * Käytetään kirjautumistilanteessa
 	 * @param user
 	 * @param getUserId
 	 * @return käyttäjän id tai 0 jos ei ole tai -1 poikkeus
 	 */
-	public static int getUserId(Kayttaja user, PreparedStatement getUserId){	
+	public static int logIn(Kayttaja user, PreparedStatement getUserId){	
 		try{
 			getUserId.setString(1, user.getNimi());
 			getUserId.setString(2, user.getSalasana());
@@ -561,6 +563,49 @@ public class SQLOperations {
 			}
 		} catch(SQLException e){
 			//TODO 
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * Palauttaa käyttäjän lintuhavaintolistan annetulta aikaväliltä 
+	 * @param alkuPaivamaara
+	 * @param loppuPaivamaara
+	 * @param user
+	 * @param preparedGetBirdWatchData
+	 * @return Lintuhavaintolista
+	 */
+	public static ArrayList<Lintuhavainto> getBirdWatchData(Paivamaara alkuPaivamaara, Paivamaara loppuPaivamaara, Kayttaja user,
+			PreparedStatement preparedGetBirdWatchData) {
+		ArrayList<Lintuhavainto> birdWatchArray=new ArrayList<>();
+		try{
+			preparedGetBirdWatchData.setInt(1, user.getId());
+			preparedGetBirdWatchData.setString(2, alkuPaivamaara.toString());
+			preparedGetBirdWatchData.setString(3, loppuPaivamaara.toString());
+			ResultSet rs=preparedGetBirdWatchData.executeQuery();
+			while(rs.next()){
+				boolean eko,sponde;
+				eko=sponde=false;
+				Paivamaara pvm;
+				if(rs.getInt("eko")==1){
+					eko=true;
+				}
+				if(rs.getInt("sponde")==1){
+					sponde=true;
+				}
+				try {
+					pvm=new Paivamaara(rs.getString("paivamaara"));
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
+				}
+				birdWatchArray.add(new Lintuhavainto(rs.getInt("lintuid"), rs.getString("paikka"),
+						pvm, rs.getInt("id"), rs.getInt("havaitsija"),
+						eko, sponde));
+			}
+			return birdWatchArray;
+		}catch(SQLException e){
 			e.printStackTrace();
 		}
 		return null;

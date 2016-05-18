@@ -14,6 +14,7 @@ import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
 import databaseobjects.Lintu;
 import databaseobjects.Lintuhavainto;
+import databaseobjects.Paivamaara;
 import lib.Operations;
 
 public class DB_connection {
@@ -22,14 +23,26 @@ public class DB_connection {
 	private final String password;			//"mysli"
 	
 	private Connection con = null;
-	
+	/**
+	 * Käyttäjän
+	 */
 	private PreparedStatement insertUser=null;
 	private PreparedStatement getUserId=null;
-	
+	/**
+	 * Linnun
+	 */
 	private PreparedStatement preparedBirdNameSearch=null;
 	private PreparedStatement preparedBirdIdSearch=null;
 	private PreparedStatement preparedGetBirdName=null;
 	
+	/**
+	 * Lintuhavainnon
+	 */
+	private PreparedStatement preparedGetBirdWatchData=null;
+	
+	/**
+	 * Kalan
+	 */
 	private PreparedStatement preparedFishNameSearch=null;
 	private PreparedStatement preparedFishIdSearch=null;
 	private PreparedStatement preparedGetFishName=null;
@@ -83,6 +96,9 @@ public class DB_connection {
 			
 			String getBirdName="SELECT nimi FROM lintu WHERE id=?;";
 			preparedGetBirdName=con.prepareStatement(getBirdName);
+			
+			String getBirdWatchData="SELECT * FROM lintuhavainto WHERE havaitsija=? AND paivamaara>=? AND paivamaara<=?;";
+			preparedGetBirdWatchData=con.prepareStatement(getBirdWatchData);
 			
 			String fishSearch="SELECT nimi FROM kala WHERE nimi LIKE ?;";
 			preparedFishNameSearch=con.prepareStatement(fishSearch);
@@ -291,6 +307,15 @@ public class DB_connection {
 	}
 	
 	/**
+	 * Palauttaa käyttäjän ID:n, mikäli käyttäjänimi ja salasana ovat oikeat
+	 * @param user
+	 * @return id
+	 */
+	public int logIn(Kayttaja user){
+		return SQLOperations.logIn(user, getUserId);
+	}
+	
+	/**
 	 * Lisää parametrina annetun kunnan,
 	 * mikäli sitä ei vielä ole tietokannassa
 	 * @param town
@@ -398,5 +423,17 @@ public class DB_connection {
 	 */
 	public String getBirdNameById(int lintuid) {
 		return SQLOperations.getBirdNameById(lintuid, preparedGetBirdName);
+	}
+
+	/**
+	 * Palauttaa käyttäjän lintuhavainnot annetulta väliltä JSON-muodossa
+	 * @param alkuPaivamaara
+	 * @param loppuPaivamaara
+	 * @param user
+	 */
+	public String getBirdWatchData(Paivamaara alkuPaivamaara, Paivamaara loppuPaivamaara, Kayttaja user) {
+		ArrayList<Lintuhavainto> birdArray=SQLOperations.getBirdWatchData(alkuPaivamaara, loppuPaivamaara, user, preparedGetBirdWatchData);
+		System.out.println(birdArray.size());
+		return Operations.arrayToJSON(birdArray, this);
 	}
 }

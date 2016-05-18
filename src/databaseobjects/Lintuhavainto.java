@@ -11,17 +11,18 @@ public class Lintuhavainto implements Havainto, Json{
 	private boolean eko;
 	private boolean sponde;
 	
-	public Lintuhavainto(int lintu, String paikka, int havaitsija, Paivamaara pvm) {
-		this.lintuid = lintu;
+	public Lintuhavainto(int lintuid, String paikka, int havaitsija, Paivamaara pvm) {
+		this.lintuid = lintuid;
 		this.paikka = paikka;
 		this.havaitsija = havaitsija;
 		this.setPvm(pvm);
 		eko=sponde=false;
 	}
 	
-	public Lintuhavainto(int lintu, String paikka, int id, int havaitsija) {
-		this.lintuid = lintu;
+	public Lintuhavainto(int lintuid, String paikka, Paivamaara paivamaara, int id, int havaitsija) {
+		this.lintuid = lintuid;
 		this.paikka = paikka;
+		this.pvm=paivamaara;
 		this.id = id;
 		this.havaitsija = havaitsija;
 		eko=sponde=false;
@@ -37,16 +38,17 @@ public class Lintuhavainto implements Havainto, Json{
 		this.sponde=sponde;
 	}
 	
-	public Lintuhavainto(int lintu, String paikka, int id, int havaitsija, boolean eko, boolean sponde) {
-		this.lintuid = lintu;
+	public Lintuhavainto(int lintuid, String paikka, Paivamaara paivamaara, int id, int havaitsija, boolean eko, boolean sponde) {
+		this.lintuid = lintuid;
 		this.paikka = paikka;
 		this.id = id;
 		this.havaitsija = havaitsija;
 		this.eko = eko;
 		this.sponde = sponde;
+		this.pvm=paivamaara;
 	}
 
-	public int getLintu() {
+	public int getLintuId() {
 		return lintuid;
 	}
 	public String getPaikka() {
@@ -74,8 +76,8 @@ public class Lintuhavainto implements Havainto, Json{
 	public void setSponde(boolean sponde) {
 		this.sponde = sponde;
 	}
-	public void setLintu(int lintu) {
-		this.lintuid = lintu;
+	public void setLintuId(int lintuid) {
+		this.lintuid = lintuid;
 	}
 	public void setPaikka(String paikka) {
 		this.paikka = paikka;
