@@ -4,7 +4,7 @@ import databaseconnection.DB_connection;
 
 public class Lintuhavainto implements Havainto, Json{
 	private int lintuid;
-	private String paikka; //TODO kunta
+	private Kunta paikka; //TODO kunta
 	private int id;
 	private int havaitsija;
 	private Paivamaara pvm;
@@ -13,7 +13,7 @@ public class Lintuhavainto implements Havainto, Json{
 	
 	public Lintuhavainto(int lintuid, String paikka, int havaitsija, Paivamaara pvm) {
 		this.lintuid = lintuid;
-		this.paikka = paikka;
+		this.paikka = new Kunta(paikka);
 		this.havaitsija = havaitsija;
 		this.setPvm(pvm);
 		eko=sponde=false;
@@ -21,7 +21,7 @@ public class Lintuhavainto implements Havainto, Json{
 	
 	public Lintuhavainto(int lintuid, String paikka, Paivamaara paivamaara, int id, int havaitsija) {
 		this.lintuid = lintuid;
-		this.paikka = paikka;
+		this.paikka = new Kunta(paikka);
 		this.pvm=paivamaara;
 		this.id = id;
 		this.havaitsija = havaitsija;
@@ -31,7 +31,7 @@ public class Lintuhavainto implements Havainto, Json{
 	public Lintuhavainto(String lintu, String paikka, Paivamaara pvm, 
 			int havaitsija, Boolean eko, Boolean sponde, DB_connection con){
 		this.lintuid=con.searchBirdId(lintu);
-		this.paikka=paikka;
+		this.paikka=new Kunta(paikka);
 		this.setPvm(pvm);
 		this.havaitsija=havaitsija;
 		this.eko=eko;
@@ -40,7 +40,7 @@ public class Lintuhavainto implements Havainto, Json{
 	
 	public Lintuhavainto(int lintuid, String paikka, Paivamaara paivamaara, int id, int havaitsija, boolean eko, boolean sponde) {
 		this.lintuid = lintuid;
-		this.paikka = paikka;
+		this.paikka = new Kunta(paikka);
 		this.id = id;
 		this.havaitsija = havaitsija;
 		this.eko = eko;
@@ -51,14 +51,32 @@ public class Lintuhavainto implements Havainto, Json{
 	public int getLintuId() {
 		return lintuid;
 	}
-	public String getPaikka() {
-		return paikka;
+	
+	public void setLintuId(int lintuid) {
+		this.lintuid = lintuid;
 	}
+
+	public String getPaikka() {
+		return paikka.getNimi();
+	}
+	
+	public void setPaikka(String paikka) {
+		this.paikka = new Kunta(paikka);
+	}
+
 	public int getId() {
 		return id;
 	}
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public Paivamaara getPvm() {
+		return pvm;
+	}
+
+	public void setPvm(Paivamaara pvm) {
+		this.pvm = pvm;
 	}
 
 	public int getHavaitsija() {
@@ -76,21 +94,6 @@ public class Lintuhavainto implements Havainto, Json{
 	public void setSponde(boolean sponde) {
 		this.sponde = sponde;
 	}
-	public void setLintuId(int lintuid) {
-		this.lintuid = lintuid;
-	}
-	public void setPaikka(String paikka) {
-		this.paikka = paikka;
-	}
-	
-	public Paivamaara getPvm() {
-		return pvm;
-	}
-
-	public void setPvm(Paivamaara pvm) {
-		this.pvm = pvm;
-	}
-
 	@Override
 	public String toInsertableString(){
 		return "('"+lintuid+"','"+paikka+"','"+pvm.toString()+"','"+havaitsija+"','"+(eko?1:0)+"','"+(sponde?1:0)+"')";
