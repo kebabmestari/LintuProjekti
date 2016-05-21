@@ -20,7 +20,7 @@ import databaseobjects.Paivamaara;
 import java.sql.PreparedStatement;
 
 public class SQLOperations {
-	
+
 	/**
 	 * Onko akkosellinen merkkijono
 	 * @param s, tutkittava merkkijono
@@ -32,7 +32,7 @@ public class SQLOperations {
 		}
 		else{
 			return false;
-		} 
+		}
 	}
 	/**
 	 * Onko annettu merkkijono akkosnumeerinen
@@ -45,9 +45,9 @@ public class SQLOperations {
 		}
 		else{
 			return false;
-		} 
+		}
 	}
-	
+
 	/**
 	 * Etsii listan linnuista, jotka alkavat ennetulla merkkijonolla
 	 * @param wordBegin
@@ -62,7 +62,10 @@ public class SQLOperations {
 				ResultSet rs=pstm.executeQuery();
 				while(rs.next()){
 					String nimi=rs.getString("nimi");
-					birdList.add(new Lintu(nimi));
+					String nimi=rs.getString("nimi");
+					int id = rs.getInt("id");
+					int yleisyys = rs.getInt("yleisyys");
+					birdList.add(new Lintu(id, nimi, yleisyys));
 				}
 				return birdList;
 			} catch (SQLException e) {
@@ -70,15 +73,15 @@ public class SQLOperations {
 				System.err.println("Kysely lajeista ei toiminut");
 				e.printStackTrace();
 				return null;
-			}	
+			}
 		} catch (SQLException e1) {
 			System.out.println("virheellinen SQL");
 			e1.printStackTrace();
 			return null;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Palauttaa linnun id:n
 	 * @param bird
@@ -100,7 +103,57 @@ public class SQLOperations {
 			return 0;
 		}
 	}
-	
+
+	/**
+	 * Hae kayttajan ID
+	 */
+	public static int getUserID(String name, Connection con){
+			try {
+					String sql = "SELECT kayttaja.id FROM kayttaja WHERE kayttaja.nimi LIKE '"
+									+ name + "%';";
+					Statement st = con.createStatement();
+					ResultSet rs = st.executeQuery(sql);
+					if(rs.next()){
+							return rs.getInt("id");
+					} else{
+							System.err.println("Käyttäjää ei löytynyt");
+					}
+			} catch (SQLException ex) {
+					Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
+			}
+			return 1;
+	}
+
+	/**
+	 * Poistaa kalan tai linnun tietokannasta
+	 * @param name Lajin nimi
+	 */
+	public static void removeSpecies(String name, Connection con){
+			String sql = "DELETE FROM lintu WHERE lintu.nimi LIKE '" + name + "%';";
+			String sql2 = "DELETE FROM kala WHERE kala.nimi LIKE '" + name + "%';";
+			try {
+							Statement stm=con.createStatement();
+							int deletes = stm.executeUpdate(sql);
+							deletes += stm.executeUpdate(sql2);
+							//Multidelete
+							if(deletes > 1){
+									Scanner cin = new Scanner(System.in);
+									System.out.println("Poistetaan " + deletes + " lajia! Y hyväksyy");
+									if(cin.next().toLowerCase() == "y"){
+											return;
+									} else{
+											con.rollback();
+									}
+							} else if(deletes == 0){
+									System.err.println("Lajia ei löytynyt tietokannasta");
+							}
+			} catch (SQLException e) {
+							System.err.println("Lajin poistaminen ei onnistunut");
+							System.err.println("Lajista ei saa olla havaintoja ym");
+							return;
+			}
+	}
+
 	/**
 	 * Etsii kalan nimen sen alkukirjaimen perusteella
 	 * Ennustavaa syöttöä varten
@@ -124,7 +177,7 @@ public class SQLOperations {
 				System.err.println("Kysely kaloista ei toiminut");
 				e.printStackTrace();
 				return null;
-			}	
+			}
 		} catch (SQLException e1) {
 			System.out.println("virheellinen SQL");
 			e1.printStackTrace();
@@ -175,13 +228,40 @@ public class SQLOperations {
 				System.err.println("Kysely kunnista ei toiminut");
 				e.printStackTrace();
 				return null;
-			}	
+			}
 		} catch (SQLException e1) {
 			System.out.println("virheellinen SQL");
 			e1.printStackTrace();
 			return null;
 		}
 	}
+
+	/**
+	 * Poistaa käyttäjän tietokannasta
+	 * @param user
+	 * @param con
+	 * @param stm
+	 */
+	public static void removeUser(String user, Connection con, PreparedStatement stm){
+			String sql = "DELETE FROM kayttaja WHERE kayttaja.nimi = '" + user + "';";
+			try{
+					Statement st = con.createStatement();
+					int deletes = st.executeUpdate(sql);
+					if(deletes > 1){
+							throw new SQLException("Ei voi poistaa useampaa käyttäjää samaan aikaan!");
+					} else if(deletes == 0){
+							System.err.println("Käyttäjää " + user + " ei löytynyt");
+					}
+			} catch(SQLException e){
+					try{
+							con.rollback();
+					} catch(SQLException ee){
+							System.err.println("Rollback failed");
+							ee.printStackTrace();
+					}
+			}
+	}
+
 	/**
 	 * Lisää lintu- tai kalahavainnon tietokantaan.
 	 * @param havainto
@@ -196,7 +276,7 @@ public class SQLOperations {
 			return id;
 		}else if(id==-1){
 			return -1;
-		}else{	
+		}else{
 			System.out.println("Lisätään");
 			String sql="INSERT INTO "+havainto.toInsertHeader()+" VALUES "+havainto.toInsertableString()+";";
 			try {
@@ -210,7 +290,7 @@ public class SQLOperations {
 			}
 		}
 	}
-	
+
 	/**
 	 * Päivittää havainnon tiedot parametrina annettun havainnon tietoihin
 	 * @param havainto
@@ -227,7 +307,7 @@ public class SQLOperations {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Palauttaa havainnon id:n, jos sellainen on tietokannassa.
 	 * Mikäli ei, palautetaan 0
@@ -254,9 +334,9 @@ public class SQLOperations {
 			e.printStackTrace();
 			return -1;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Lisää annetun käyttäjän, jos käyttäjänimi vapaa.
 	 * Palauttaa käyttäjän id:n.
@@ -280,7 +360,7 @@ public class SQLOperations {
 		}
 		return -2;
 	}
-	
+
 	/**
 	 * Etsii ja palauttaa käyttäjän id:n, mikäli käyttäjänimi ja salasana täsmää
 	 * Käytetään kirjautumistilanteessa
@@ -288,7 +368,7 @@ public class SQLOperations {
 	 * @param getUserId
 	 * @return käyttäjän id tai 0 jos ei ole tai -1 poikkeus
 	 */
-	public static int logIn(Kayttaja user, PreparedStatement getUserId){	
+	public static int logIn(Kayttaja user, PreparedStatement getUserId){
 		try{
 			getUserId.setString(1, user.getNimi());
 			getUserId.setString(2, user.getSalasana());
@@ -302,7 +382,7 @@ public class SQLOperations {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * Lisää kaikki ne listan alkiot sitä vastaan tauluun,
 	 * joita ei vielä ole taulussa
@@ -336,7 +416,7 @@ public class SQLOperations {
 			System.out.println("Tyhjä lista, ei mitään lisättävää");
 		}
 	}
-	
+
 	private static ArrayList<Insertable> removeDuplicateInsertables(ArrayList<Insertable> insertableArray, Connection con) {
 		for(int i=0;i<insertableArray.size();i++){
 			Insertable insertable=insertableArray.get(i);
@@ -367,7 +447,7 @@ public class SQLOperations {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Palauttaa vuoden ja käyttäjän havainnot listana
 	 * @param user, jonka havaintoja haetaan
@@ -395,15 +475,15 @@ public class SQLOperations {
 		}
 		return catchArray;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param user
 	 * @param vuosi
 	 * @param fishIndexSearch
 	 * @param fishIndexCheck
 	 * @param fishMaxLengthId
-	 * @param deleteDuplicate 
+	 * @param deleteDuplicate
 	 * @return fongauksen indeksi int[0], kalojen lukum��r� int[1] ja pituuksien summa int[2]
 	 */
 	public static int[] getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
@@ -428,7 +508,7 @@ public class SQLOperations {
 				fongoList[1]=rs.getInt("lkm");
 				fongoList[2]=rs.getInt("pituus");
 				fongoList[0]=fongoList[1]*fongoList[2];
-				return fongoList;	
+				return fongoList;
 			}else{
 				fongoList[0]=fongoList[1]=fongoList[2]=0;
 				return fongoList;
@@ -439,13 +519,13 @@ public class SQLOperations {
 			return fongoList;
 		}
 	}
-	
+
 	/**
 	 * Poistaa tietokannasta indeksin laskemista häiritsevät virheelliset monikot.
 	 * Vain pisin lajin edustaja per vuosi per käyttäjä säilytetään (jos kaksi, niin uudempi).
 	 * @param kalaid poistettavan havainnon kalalajin id
 	 * @param user käyttäjä, jonka fongoja poistetaan
-	 * @param vuosi 
+	 * @param vuosi
 	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksil�iden id:t aikajärjestyksessä
 	 * @param deleteDuplicate, päivitys, joka poistaa havainnot anneulta käyttäjältä, lajilta ja vuodelta, mikäli id on eri
 	 */
@@ -471,7 +551,7 @@ public class SQLOperations {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Tarkistaa, onko virheellisiä havaintoja päässyt tietokantaan.
 	 * Vain yksi lajin ilmoitus saa olla vuodessa käyttäjää kohti.
@@ -504,9 +584,9 @@ public class SQLOperations {
 			}
 		}
 		return idArray;
-		
+
 	}
-	
+
 	/**
 	 * Poistaa parametrina annetun id:n mukaisen kalahavinnon.
 	 * @param id kalahavainnon id
@@ -544,10 +624,10 @@ public class SQLOperations {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Palauttaa linnun id vastaavan nimen
-	 * Palauttaa null jos error tai lintua ei ole 
+	 * Palauttaa null jos error tai lintua ei ole
 	 * @param lintuid
 	 * @param preparedGetBirdName
 	 * @return linnun nimi
@@ -562,14 +642,14 @@ public class SQLOperations {
 				return lintu;
 			}
 		} catch(SQLException e){
-			//TODO 
+			//TODO
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Palauttaa käyttäjän lintuhavaintolistan annetulta aikaväliltä 
+	 * Palauttaa käyttäjän lintuhavaintolistan annetulta aikaväliltä
 	 * @param alkuPaivamaara
 	 * @param loppuPaivamaara
 	 * @param user

@@ -1,3 +1,4 @@
+<<<<<<< 319d7692e1ff251b3ab1d38ff9c75f7bf7c00491
 #Tähän tiedostoon SQL-kyselyt kantaan plaintextinä
 
 preparedBirdNameSearch
@@ -74,3 +75,6 @@ getUserId
 SELECT id
 FROM kayttaja
 WHERE nimi=? AND salasana=?;
+=======
+Tähän tiedostoon SQL-kyselyt kantaan plaintextinä
+>>>>>>> Juttuja

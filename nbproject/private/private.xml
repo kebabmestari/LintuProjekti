@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Kalahavainto.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Insertable.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Lintu.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Kala.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Havainto.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/dbcli/Softa.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseconnection/NotInDBException.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Kayttaja.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Kunta.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Lintuhavainto.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseconnection/DB_connection.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseconnection/SQLOperations.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Kuva.java</file>
+            <file>file:/C:/Users/adminpc/Dropbox/Yliopisto/TIETOKANNAT%202/Harkkatyo/LintuTietokanta/src/databaseobjects/Paivamaara.java</file>
+        </group>
+    </open-files>
+</project-private>
