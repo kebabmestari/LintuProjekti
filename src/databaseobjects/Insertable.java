@@ -8,7 +8,7 @@ public interface Insertable {
 	public String toInsertableString();
 	
 	/**
-	 * Palauttaa lisättävän taulun nimen ja attribuuttilistan
+	 * Palauttaa lis#tt#v#n taulun nimen ja attribuuttilistan
 	 * @return muotoa taulu(attr1,attr2,...)
 	 */
 	public String toInsertHeader();

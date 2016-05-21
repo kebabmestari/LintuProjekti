@@ -8,14 +8,14 @@ public interface Havainto {
 	public String toInsertableString();
 	
 	/**
-	 * Palauttaa lis‰tt‰v‰n taulun nimen ja attribuuttilistan
+	 * Palauttaa lis#tt#v#n taulun nimen ja attribuuttilistan
 	 * @return muotoa taulu(attr1,attr2,...)
 	 */
 	public String toInsertHeader();
 	
 	/**
 	 * Palauttaa ne attribuuttivertailut,
-	 * jotka m‰‰r‰‰v‰t j‰rkev‰t havainnot yksik‰sitteisesti.
+	 * jotka m##r##v#t j#rkev#t havainnot yksik#sitteisesti.
 	 * @return muodossa "lintu='12' AND paivamaara='2012-04-20' AND havaitsija='1'"
 	 */
 	public String getUniqueAttributesWithValues();
@@ -27,7 +27,7 @@ public interface Havainto {
 	public String getTable();
 
 	/**
-	 * Palauttaa p‰ivityst‰ varten kaikki arrtibuutit ja arvot
+	 * Palauttaa p#ivityst# varten kaikki arrtibuutit ja arvot
 	 * @return
 	 */
 	public String getAllUpdatableAttributesWithValues();

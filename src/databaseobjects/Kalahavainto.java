@@ -106,7 +106,7 @@ public class Kalahavainto implements Havainto, Json {
 	
 	/**
 	 * Palauttaa olion JSON-formaatissa,
-	 * kalaid:n tilalla on kalan nimi, eik� havaitsijaa ole
+	 * kalaid:n tilalla on kalan nimi, eikA havaitsijaa ole
 	 * @param connection
 	 * @return olio JSON-formaatissa
 	 */

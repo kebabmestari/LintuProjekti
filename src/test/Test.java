@@ -21,7 +21,7 @@ public class Test {
 	public static void main(String[] args) {
 		DB_connection connection=new DB_connection("localhost", "tk2", user, password);
 	//	testikunta(connection); toimii
-	//	testikäyttäjä(connection); toimii
+	//	testikAyttAjA(connection); toimii
 	
 	//	etsiLinnut(connection, "ki");
 	//	lisaaLinnut(lueLinnut(true), connection); //toimii
@@ -30,14 +30,14 @@ public class Test {
 	//	lisaaKalat(lueKalat(true),connection);
 	//	lintuhavaintoTesti(connection);
 		kalahavaintotesti(connection);
-	//	testikäyttäjä(connection);
+	//	testikAyttAjA(connection);
 		connection.disconnect();
 	}
 	
 	public static void kalahavaintotesti(DB_connection connection) {
 		try {
 			Kalahavainto kh=new Kalahavainto("Kaarina", 25, "ahven",1,new Paivamaara("3.5.2016"), connection);
-			System.out.println("Kalaid: "+kh.getKalaid()+" Päivämäärä: "+kh.getPvm().toString());
+			System.out.println("Kalaid: "+kh.getKalaid()+" PAivAmAArA: "+kh.getPvm().toString());
 			System.out.println(kh.toJSON(connection));
 			int havaintoId= connection.insertFishCatch(kh);
 			kh.setId(havaintoId);
@@ -58,7 +58,7 @@ public class Test {
 	public static void lintuhavaintoTesti(DB_connection connection){
 		Lintuhavainto lintuhavainto = null;
 		try {
-			lintuhavainto = new Lintuhavainto("sirittäjä", "Turku", new Paivamaara("12.5.2016"),1,false,true, connection);
+			lintuhavainto = new Lintuhavainto("sirittAjA", "Turku", new Paivamaara("12.5.2016"),1,false,true, connection);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -87,7 +87,7 @@ public class Test {
 			return kalat;
 			
 		} catch (Exception e) {
-			System.out.println("Tiedostoa ei löydy tai");
+			System.out.println("Tiedostoa ei lAydy tai");
 			e.printStackTrace();
 			return null;
 		}
@@ -107,7 +107,7 @@ public class Test {
 			return linnut;
 			
 		} catch (Exception e) {
-			System.out.println("Tiedostoa ei löydy tai");
+			System.out.println("Tiedostoa ei lAydy tai");
 			e.printStackTrace();
 			return null;
 		}
@@ -132,7 +132,7 @@ public class Test {
 			return kunnat;
 			
 		} catch (Exception e) {
-			System.out.println("Tiedostoa ei löydy tai");
+			System.out.println("Tiedostoa ei lAydy tai");
 			e.printStackTrace();
 			return null;
 		}
@@ -157,7 +157,7 @@ public class Test {
 			}	
 	}
 	
-	public static void testikäyttäjä(DB_connection connection) {
+	public static void testikayttaja(DB_connection connection) {
 		Kayttaja josia=new Kayttaja("Nyman", "hyvinSalainen");
 		int id=connection.insertUser(josia);
 		if(id>0){

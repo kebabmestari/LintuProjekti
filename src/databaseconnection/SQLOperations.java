@@ -18,6 +18,9 @@ import databaseobjects.Lintuhavainto;
 import databaseobjects.Paivamaara;
 
 import java.sql.PreparedStatement;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SQLOperations {
 
@@ -61,7 +64,6 @@ public class SQLOperations {
 			try {
 				ResultSet rs=pstm.executeQuery();
 				while(rs.next()){
-					String nimi=rs.getString("nimi");
 					String nimi=rs.getString("nimi");
 					int id = rs.getInt("id");
 					int yleisyys = rs.getInt("yleisyys");
@@ -121,6 +123,7 @@ public class SQLOperations {
 			} catch (SQLException ex) {
 					Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
 			}
+                        
 			return 1;
 	}
 
@@ -484,7 +487,7 @@ public class SQLOperations {
 	 * @param fishIndexCheck
 	 * @param fishMaxLengthId
 	 * @param deleteDuplicate
-	 * @return fongauksen indeksi int[0], kalojen lukum��r� int[1] ja pituuksien summa int[2]
+	 * @return fongauksen indeksi int[0], kalojen lukum##r# int[1] ja pituuksien summa int[2]
 	 */
 	public static int[] getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
 			PreparedStatement fishIndexCheck, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate){
@@ -526,7 +529,7 @@ public class SQLOperations {
 	 * @param kalaid poistettavan havainnon kalalajin id
 	 * @param user käyttäjä, jonka fongoja poistetaan
 	 * @param vuosi
-	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksil�iden id:t aikajärjestyksessä
+	 * @param fishMaxLengthId, kysely, joka palauttaa pisimpien yksil#iden id:t aikajärjestyksessä
 	 * @param deleteDuplicate, päivitys, joka poistaa havainnot anneulta käyttäjältä, lajilta ja vuodelta, mikäli id on eri
 	 */
 	public static void removeSmallerDuplicates(int kalaid, Kayttaja user, int vuosi, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate) {

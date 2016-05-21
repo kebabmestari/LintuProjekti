@@ -11,7 +11,7 @@ public class Kayttaja implements Insertable{
 		this.salasana = kryptaa(salasana);
 	}
 	private String kryptaa(String kryptattava){
-		//TODO toteuta kryptaus ja muista pakettien salaus myös verkossa
+		//TODO toteuta kryptaus ja muista pakettien salaus my#s verkossa
 		return kryptattava;
 	}
 	public Kayttaja(String nimi, String salasana) {

@@ -1,8 +1,6 @@
 package dbcli;
 
-import com.mysql.jdbc.ResultSetMetaData;
 import databaseconnection.DB_connection;
-import databaseobjects.Havainto;
 import databaseobjects.Kala;
 import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
@@ -16,11 +14,10 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;

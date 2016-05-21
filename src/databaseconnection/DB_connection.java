@@ -29,7 +29,7 @@ public class DB_connection {
 
 	private Connection con = null;
 	/**
-	 * Käyttäjän
+	 * K#ytt#j#n
 	 */
 	private PreparedStatement insertUser=null;
 	private PreparedStatement getUserId=null;
@@ -72,8 +72,8 @@ public class DB_connection {
 		this.password=password;
 
 		if (!createConnection()){
-			System.err.println("Yhteyttä ei voitu muodostaa");
-			//TODO Mitä sitten?
+			System.err.println("Yhteytt# ei voitu muodostaa");
+			//TODO Mit# sitten?
 		}
 	}
 
@@ -232,7 +232,7 @@ public class DB_connection {
 					ResultSet rs = st.executeQuery(sql);
 					return rs;
 			} catch(SQLException e){
-					System.err.println("Virhe SQL:ssä");
+					System.err.println("Virhe SQL:ss#");
 					return null;
 			}
 	}
@@ -254,18 +254,18 @@ public class DB_connection {
 
 	/**
 	 * Etsii linnuista vaihtoehdot nimen alun perusteella,
-	 * palauttaa lajit yleisyysjärjestyksessä
+	 * palauttaa lajit yleisyysj#rjestyksess#
 	 * @param wordBegin, linnun nimen alku
-	 * @return lista sopivista linnuista, pelkät nimet
+	 * @return lista sopivista linnuista, pelk#t nimet
 	 */
 	public ArrayList<Lintu> searchBird(String wordBegin){
 		return SQLOperations.searchBird(wordBegin, preparedBirdNameSearch);
 	}
 
 	/**
-	 * Etsii linnun koko nimeä vastaavan id:n
+	 * Etsii linnun koko nime# vastaavan id:n
 	 * @param bird koko nimi
-	 * @return id tai -5 jos ei läydy
+	 * @return id tai -5 jos ei l#ydy
 	 */
 	public int searchBirdId(String bird){
 		return SQLOperations.searchBirdId(bird, preparedBirdIdSearch);
@@ -282,10 +282,10 @@ public class DB_connection {
 
 	/**
 	 * Etsii kalan id:n
-	 * Kun lisätään kalahavainto, käyttäjä kirjoittaaa
-	 * kalan nimen, joten tarvitaan myäs id.
+	 * Kun lis#t##n kalahavainto, k#ytt#j# kirjoittaaa
+	 * kalan nimen, joten tarvitaan my#s id.
 	 * @param fish
-	 * @return palauttaa kalan nimeä vastaavan id:n
+	 * @return palauttaa kalan nime# vastaavan id:n
 	 */
 	public int searchFishId(String fish){
 		return SQLOperations.searchBirdId(fish, preparedFishIdSearch);
@@ -296,10 +296,10 @@ public class DB_connection {
 	}
 
 	/**
-	 * Lisää parametrina annetun fongatun kalan tiedot tietokantaan.
-	 * Jos sinä vuonna on jo kyseinen laji saatu, havainnot päivitetään.
+	 * Lis## parametrina annetun fongatun kalan tiedot tietokantaan.
+	 * Jos sin# vuonna on jo kyseinen laji saatu, havainnot p#ivitet##n.
 	 * Palauttaa havainnon id:n
-	 * @param fishCatch Kalahavainto, joka halutaan lisätä
+	 * @param fishCatch Kalahavainto, joka halutaan lis#t#
 	 * @return havainnon id
 	 */
 	public int insertFishCatch(Kalahavainto fishCatch){
@@ -307,10 +307,10 @@ public class DB_connection {
 	}
 
 	/**
-	 * Lisää lintuhavainnon tietokantaan. Mikäli oli nähty jo laji sinä päivänä,
-	 * havainto vain päivitetään uusilla tiedoilla.
+	 * Lis## lintuhavainnon tietokantaan. Mik#li oli n#hty jo laji sin# p#iv#n#,
+	 * havainto vain p#ivitet##n uusilla tiedoilla.
 	 * Palauttaa havainnon id:n
-	 * @param birdWatch, joka halutaan lisätä
+	 * @param birdWatch, joka halutaan lis#t#
 	 * @return havainnon id
 	 */
 	public int insertBirdWatch(Lintuhavainto birdWatch){
@@ -319,18 +319,18 @@ public class DB_connection {
 
 	/**
 	 * Etsii havainnon id:n.
-	 * Kalahavainnoissa riittää, että sinä vuonna on saatu kyseinen laji.
-	 * Lintuhavainnoissa lintu pitää olla havaittu samana päivänä,
-	 * koska voidaa myäs päivänpinnailla.
+	 * Kalahavainnoissa riitt##, ett# sin# vuonna on saatu kyseinen laji.
+	 * Lintuhavainnoissa lintu pit## olla havaittu samana p#iv#n#,
+	 * koska voidaa my#s p#iv#npinnailla.
 	 * @param havainto lintuhavainto tai kalahavainto
-	 * @return 0 jos ei ole havaintoa, -1 jos error, id > 0 jos läytyi
+	 * @return 0 jos ei ole havaintoa, -1 jos error, id > 0 jos l#ytyi
 	 */
 	public int getHavaintoId(Havainto havainto){
 		return SQLOperations.havaintoIdIfAlreadyInTable(havainto, con);
 	}
 
 	/**
-	 * Päivittää havainnon annetulla havainnolla
+	 * P#ivitt## havainnon annetulla havainnolla
 	 * @param birdWatch
 	 */
 	public void updateBirdWatch(Lintuhavainto birdWatch){
@@ -338,12 +338,12 @@ public class DB_connection {
 		if(id>0){
 			SQLOperations.updateHavainto(birdWatch, id, con);
 		}else{
-			//TODO ei voida päivittää, koska ei ole alunperin havaintoa tai error
+			//TODO ei voida p#ivitt##, koska ei ole alunperin havaintoa tai error
 		}
 	}
 
 	/**
-	 * Päivittää havainnon annetulla havainnolla
+	 * P#ivitt## havainnon annetulla havainnolla
 	 * @param fishCatch uudet tiedot
 	 */
 	public void updateFichCatch(Kalahavainto fishCatch){
@@ -351,23 +351,23 @@ public class DB_connection {
 		if(id>0){
 			SQLOperations.updateHavainto(fishCatch, id, con);
 		}else{
-			//TODO ei voida päivittää, koska ei ole alunperin havaintoa tai error
+			//TODO ei voida p#ivitt##, koska ei ole alunperin havaintoa tai error
 		}
 	}
 
 	/**
-	 * Lintujen lisäys, id autogeneroidaan
-	 * Lisätään vain ne linnut, jotka puuttuivat tietokannasta
-	 * @param birdArray on lista lisättävistä linnuista
+	 * Lintujen lis#ys, id autogeneroidaan
+	 * Lis#t##n vain ne linnut, jotka puuttuivat tietokannasta
+	 * @param birdArray on lista lis#tt#vist# linnuista
 	 */
 	public void insertBird(ArrayList<Lintu> birdArray){
 		SQLOperations.insertObject(convertToInsertable(birdArray), con);
 	}
 
 	/**
-	 * Lisää parametrina annetun linnun,
-	 * mikäli sitä ei ole jo tietokannassa
-	 * @param lintu, joka aiotaan lisätä
+	 * Lis## parametrina annetun linnun,
+	 * mik#li sit# ei ole jo tietokannassa
+	 * @param lintu, joka aiotaan lis#t#
 	 */
 	public void insertBird(Lintu bird){
 		ArrayList<Insertable> birdArray = new ArrayList<>();
@@ -376,17 +376,17 @@ public class DB_connection {
 	}
 
 	/**
-	 * Lisää parametrina annetun käyttäjän,
-	 * mikäli sitä ei ole jo tietokannassa
-	 * @param user, joka aiotaan lisätä
-	 * @return käyttäjän id tai -2 jos nimi jo käytässä tai -1 jos poikkeus
+	 * Lis## parametrina annetun k#ytt#j#n,
+	 * mik#li sit# ei ole jo tietokannassa
+	 * @param user, joka aiotaan lis#t#
+	 * @return k#ytt#j#n id tai -2 jos nimi jo k#yt#ss# tai -1 jos poikkeus
 	 */
 	public int insertUser(Kayttaja user){
 		return SQLOperations.insertUser(user, insertUser, getUserId, con);
 	}
 
 	/**
-	 * Palauttaa käyttäjän ID:n, mikäli käyttäjänimi ja salasana ovat oikeat
+	 * Palauttaa k#ytt#j#n ID:n, mik#li k#ytt#j#nimi ja salasana ovat oikeat
 	 * @param user
 	 * @return id
 	 */
@@ -402,7 +402,7 @@ public class DB_connection {
 			SQLOperations.removeSpecies(name, con);
 	}
 	/**
-	 * Poistaa käyttäjän
+	 * Poistaa k#ytt#j#n
 	 * @param username
 	 */
 	public void removeUser(String username){
@@ -410,8 +410,8 @@ public class DB_connection {
 	}
 
 	/**
-	 * Lisää parametrina annetun kunnan,
-	 * mikäli sitä ei vielä ole tietokannassa
+	 * Lis## parametrina annetun kunnan,
+	 * mik#li sit# ei viel# ole tietokannassa
 	 * @param town
 	 */
 	public void insertTown(Kunta town) {
@@ -421,8 +421,8 @@ public class DB_connection {
 	}
 
 	/**
-	 * Lisää parametrina annetut kunnat,
-	 * mikäli niitä ei vielä ole tietokannassa
+	 * Lis## parametrina annetut kunnat,
+	 * mik#li niit# ei viel# ole tietokannassa
 	 * @param towns
 	 */
 	public void insertTown(ArrayList<Kunta> towns) {
@@ -430,9 +430,9 @@ public class DB_connection {
 	}
 
 	/**
-	 * Lisää parametrina annetun kalan,
-	 * mikäli sitä ei vielä ole tietokannassa
-	 * @param fish, joka lisätään
+	 * Lis## parametrina annetun kalan,
+	 * mik#li sit# ei viel# ole tietokannassa
+	 * @param fish, joka lis#t##n
 	 */
 	public void insertFish(Kala fish){
 		ArrayList<Insertable> fishArray=new ArrayList<>();
@@ -446,7 +446,7 @@ public class DB_connection {
 
 	/**
 	 * Muuttaa annetun listan tyypin Insertable mukaisesti,
-	 * mikäli alkuperäinen tyyppi toteuttaa rajapinnan.
+	 * mik#li alkuper#inen tyyppi toteuttaa rajapinnan.
 	 * @param array
 	 * @return insertable array
 	 */
@@ -464,11 +464,11 @@ public class DB_connection {
 
 	/**
 	 * Palauttaa fongausindeksin
-	 * Mikäli tietokannassa on virheellisiä monikoita, ne poistetaan.
-	 * Yhtä käyttäjää, kalalajia ja vuotta kohti saa olla vain yksi havainto.
-	 * Pisin ja pisimmistä uusin jää tietokantaan.
+	 * Mik#li tietokannassa on virheellisi# monikoita, ne poistetaan.
+	 * Yht# k#ytt#j##, kalalajia ja vuotta kohti saa olla vain yksi havainto.
+	 * Pisin ja pisimmist# uusin j## tietokantaan.
 	 * @param user, huom id oltava oikea id
-	 * @param vuosi, vuosi, jolta haetaan indeksiä
+	 * @param vuosi, vuosi, jolta haetaan indeksi#
 	 * @return fongausindeksi
 	 */
 	public int[] getFishCatchIndex(Kayttaja user, int vuosi){
@@ -477,8 +477,8 @@ public class DB_connection {
 	}
 
 	/**
-	 * Palauttaa parametrina annetun vuoden ja käyttäjän havainnot
-	 * loppukäyttäjän tarvimassa JSON-formaatissa
+	 * Palauttaa parametrina annetun vuoden ja k#ytt#j#n havainnot
+	 * loppuk#ytt#j#n tarvimassa JSON-formaatissa
 	 * KESKEN!!
 	 * @param user
 	 * @param vuosi
@@ -491,16 +491,16 @@ public class DB_connection {
 
 	/**
 	 * Poistaa kalahavainnon, jonka id on parametrina annettu.
-	 * Palauttaa tiedon, montako riviä poistettiin tai poikkeustapauksessa -1
+	 * Palauttaa tiedon, montako rivi# poistettiin tai poikkeustapauksessa -1
 	 * @param id kalahavainnon id
-	 * @return poistettujen rivien määrä tai -1 poikkeustapauksessa
+	 * @return poistettujen rivien m##r# tai -1 poikkeustapauksessa
 	 */
 	public int deleteFishCatch(int id, Kayttaja user) {
 		return SQLOperations.deleteFishCatch(id, user, preparedFishCatchDeleteById);
 	}
 
 	/**
-	 * Palauttaa kalan id:tä vastaavan nimen
+	 * Palauttaa kalan id:t# vastaavan nimen
 	 * Null, jos exception tai ei kalaa
 	 * @param kalaid
 	 * @return kalan nimi tai null
@@ -510,7 +510,7 @@ public class DB_connection {
 	}
 
 	/**
-	 * Palauttaa linnun id:tä vastaavan nimen
+	 * Palauttaa linnun id:t# vastaavan nimen
 	 * Null, jos exception tai ei lintua
 	 * @param lintuid
 	 * @return linnun nimi tai null
@@ -520,7 +520,7 @@ public class DB_connection {
 	}
 
 	/**
-	 * Palauttaa käyttäjän lintuhavainnot annetulta väliltä JSON-muodossa
+	 * Palauttaa k#ytt#j#n lintuhavainnot annetulta v#lilt# JSON-muodossa
 	 * @param alkuPaivamaara
 	 * @param loppuPaivamaara
 	 * @param user
