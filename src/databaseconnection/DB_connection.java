@@ -328,6 +328,16 @@ public class DB_connection {
 	public int getHavaintoId(Havainto havainto){
 		return SQLOperations.havaintoIdIfAlreadyInTable(havainto, con);
 	}
+        
+        /**
+         * Poistaa havainnon ID:n perusteella
+         * @param id 
+         */
+        public void deleteHavainto(int id){
+            SQLOperations.deleteHavainto(id);
+        }
+        
+        public Havainto 
 
 	/**
 	 * P#ivitt## havainnon annetulla havainnolla

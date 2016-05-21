@@ -1,12 +1,12 @@
 package dbcli;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 import databaseconnection.DB_connection;
 import databaseobjects.Kala;
 import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
 import databaseobjects.Lintu;
 import databaseobjects.Lintuhavainto;
-import databaseobjects.Paivamaara;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -20,10 +20,12 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import lib.Operations;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -148,28 +150,57 @@ public class Softa {
         }
     }
     
-    private static String getMySQLTime(){
-        java.util.Date dt = new java.util.Date();
-
-        java.text.SimpleDateFormat sdf = 
-             new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        return sdf.format(dt);        
+    private static void getHavainto(){
+        String in = getInput("Syötä havaitsijan nimi tai havainnon ID");
+        boolean isNumeric = true;
+        int hID = 0;
+        
+        try{
+            double d = Double.parseDouble(in);
+        } catch(NumberFormatException e){
+            isNumeric = false;
+        }
+        
+        if(!isNumeric){
+            hID = Integer.parseInt(in);
+        } else{
+            String paiva = getInput("Syötä havaintopäivä muodossa dd-mm-yyy");
+            Pattern pat = Pattern.compile("(//d{2})-(//d){2}-{//d}{2}");
+            Matcher mat = pat.matcher(paiva);
+            if(!mat.matches()){
+                virhe("Invalid input");
+                return;
+            }
+            String sql = "SELECT id, kalaid, paikka, paivamaara, pituus FROM kalahavainto WHERE paivamaara = '" + paiva + "';";
+            String sql2 = "SELECT id, lintuid, paikka, paivamaara FROM lintuhavainto WHERE paivamaara = '" + paiva + "';";
+            ResultSet rs1 = dbConn.commitGeneralQuery(sql);
+            ResultSet rs2 = dbConn.commitGeneralQuery(sql2);
+            try{
+                tulostaRivi("ID Lajike Paikka Paivamaara (Pituus)");
+                while(rs1.next()){
+                    tulostaRivi(rs1.getInt("id") + " " + rs1.getInt("kalaid") + " " + rs1.getString("paikka") +
+                            rs1.getString("paivamaara") + " " + rs1.getInt("pituus"));
+                }
+                while(rs2.next()){
+                    tulostaRivi(rs2.getInt("id") + " " + rs2.getInt("lintuid") + " " + rs2.getString("paikka") +
+                            rs2.getString("paivamaara"));
+                }
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
     }
     
-    private static Paivamaara getMySQLPvm(){
-        
-        Calendar cal = Calendar.getInstance();
-        Paivamaara pvm = null;
-        try{
-            pvm = new Paivamaara(
-                    cal.get(Calendar.DAY_OF_MONTH),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.YEAR));
-        } catch(Exception e){
-            e.printStackTrace();
+    public int lintuVaiKala(){
+        while(true){
+            String in = getInput("(L)intu vai (k)ala").toLowerCase();
+            if(in.equals("l"))
+                return 1;
+            if(in.equals("k"))
+                return 2;
+            if(in.equals("0"))
+                return 0;
         }
-        return pvm;
     }
     
     private static void lisaaHavainto(){
@@ -194,7 +225,7 @@ public class Softa {
                                 Integer.parseInt(getInput("Pituus")),
                                 lajiId,
                                 dbConn.getUserID(getInput("Anna havaitsijan kayttajanimi")),
-                                getMySQLPvm())
+                                Operations.getMySQLPvm())
                         );
                 break;
             }
@@ -216,7 +247,7 @@ public class Softa {
                                 lajiId,
                                 getInput("Havaintopaikka"),
                                 dbConn.getUserID(getInput("Anna havaitsijan kayttajanimi")),
-                                getMySQLPvm())
+                                Operations.getMySQLPvm())
                         );
                 break;
             }
