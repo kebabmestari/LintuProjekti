@@ -45,6 +45,7 @@ public class DB_connection {
 	 * Lintuhavainnon
 	 */
 	private PreparedStatement preparedGetBirdWatchData=null;
+	private PreparedStatement preparedBirdWatchQuery=null;
 
 	/**
 	 * Kalan
@@ -57,6 +58,7 @@ public class DB_connection {
 	 * Kalahavainnon preparaatit
 	 */
 	private PreparedStatement preparedFishCatchDataSearch=null;
+	private PreparedStatement preparedFishCatchQuery=null;
 	private PreparedStatement preparedFishIndexCheck=null;
 	private PreparedStatement preparedFishIndexSearch=null;
 	private PreparedStatement preparedFishMaxLengthSearch=null;
@@ -101,74 +103,100 @@ public class DB_connection {
 			Class.forName("com.mysql.jdbc.Driver");
 
 			con=DriverManager.getConnection(DB_URI, user, password);
+                        
+                        System.out.println("Luetaan SQL-kyselyjä...");
+//			String prepareBirdSearchString="SELECT nimi, id, yleisyys FROM lintu WHERE nimi LIKE ? ORDER BY yleisyys;";
+			preparedBirdNameSearch =
+                                con.prepareStatement(Operations.readQuery("preparedBirdNameSearch"));
 
-			String prepareBirdSearchString="SELECT nimi, id, yleisyys FROM lintu WHERE nimi LIKE ? ORDER BY yleisyys;";
-			preparedBirdNameSearch=con.prepareStatement(prepareBirdSearchString);
+//			prepareBirdSearchString="SELECT id FROM lintu WHERE nimi=? ;";
+			preparedBirdIdSearch =
+                                con.prepareStatement(Operations.readQuery("preparedBirdIdSearch"));
 
-			prepareBirdSearchString="SELECT id FROM lintu WHERE nimi=? ;";
-			preparedBirdIdSearch=con.prepareStatement(prepareBirdSearchString);
+//			String getBirdName="SELECT nimi FROM lintu WHERE id=?;";
+			preparedGetBirdName =
+                                con.prepareStatement(Operations.readQuery("preparedGetBirdName"));
 
-			String getBirdName="SELECT nimi FROM lintu WHERE id=?;";
-			preparedGetBirdName=con.prepareStatement(getBirdName);
+//			String getBirdWatchData="SELECT * FROM lintuhavainto WHERE havaitsija=? AND paivamaara>=? AND paivamaara<=?;";
+			preparedGetBirdWatchData =
+                                con.prepareStatement(Operations.readQuery("preparedGetBirdWatchData"));
 
-			String getBirdWatchData="SELECT * FROM lintuhavainto WHERE havaitsija=? AND paivamaara>=? AND paivamaara<=?;";
-			preparedGetBirdWatchData=con.prepareStatement(getBirdWatchData);
+//			String fishSearch="SELECT nimi FROM kala WHERE nimi LIKE ?;";
+			preparedFishNameSearch =
+                                con.prepareStatement(Operations.readQuery("preparedFishNameSearch"));
+                        
+//			fishSearch="SELECT id FROM kala WHERE nimi=? ;";
+			preparedFishIdSearch =
+                                con.prepareStatement(Operations.readQuery("preparedFishIdSearch"));
 
-			String fishSearch="SELECT nimi FROM kala WHERE nimi LIKE ?;";
-			preparedFishNameSearch=con.prepareStatement(fishSearch);
+//			String getFishName="SELECT nimi FROM kala WHERE id=?;";
+			preparedGetFishName =
+                                con.prepareStatement(Operations.readQuery("preparedGetFishName"));
 
-			fishSearch="SELECT id FROM kala WHERE nimi=? ;";
-			preparedFishIdSearch=con.prepareStatement(fishSearch);
+//			String townSearch="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
+			preparedTownSearch =
+                                con.prepareStatement(Operations.readQuery("preparedTownSearch"));
+                        
+                        preparedFishCatchQuery =
+                                con.prepareStatement(Operations.readQuery("preparedFishCatchQuery"));
+//                            "SELECT * FROM kalahavainto WHERE paivamaara BETWEEN ? AND ?");
 
-			String getFishName="SELECT nimi FROM kala WHERE id=?;";
-			preparedGetFishName=con.prepareStatement(getFishName);
+                        preparedBirdWatchQuery =
+                                con.prepareStatement(Operations.readQuery("preparedBirdWatchQuery"));
+//                            "SELECT * FROM lintuhavainto WHERE paivamaara BETWEEN ? AND ?");
 
-			String townSearch="SELECT nimi FROM kunta WHERE nimi LIKE ?;";
-			preparedTownSearch=con.prepareStatement(townSearch);
+//			String fishCatchDataSearch="SELECT * "+
+//					"FROM kalahavainto "+
+//					"WHERE havaitsija=? AND YEAR(paivamaara)=?;";
+			preparedFishCatchDataSearch =
+                                con.prepareStatement(Operations.readQuery("preparedFishCatchDataSearch"));;
 
-			String fishCatchDataSearch="SELECT * "+
-					"FROM kalahavainto "+
-					"WHERE havaitsija=? AND YEAR(paivamaara)=?;";
-			preparedFishCatchDataSearch=con.prepareStatement(fishCatchDataSearch);
+//			String fishIndexCheck="SELECT COUNT(*) AS lkm, kalaid "+
+//								"FROM kalahavainto "+
+//								"WHERE havaitsija=? AND YEAR(paivamaara)=? "+
+//								"GROUP BY kalaid "+
+//								"HAVING COUNT(*)>1;";
+			preparedFishIndexCheck =
+                                con.prepareStatement(Operations.readQuery("preparedFishIndexCheck"));
 
-			String fishIndexCheck="SELECT COUNT(*) AS lkm, kalaid "+
-								"FROM kalahavainto "+
-								"WHERE havaitsija=? AND YEAR(paivamaara)=? "+
-								"GROUP BY kalaid "+
-								"HAVING COUNT(*)>1;";
-			preparedFishIndexCheck=con.prepareStatement(fishIndexCheck);
+//			String fishIndexSearch="SELECT 	SUM(pituus) AS pituus, COUNT(kalaid) as lkm "+
+//								"FROM 	kalahavainto "+
+//								"WHERE 	havaitsija=? AND YEAR(paivamaara)=?;";
+			preparedFishIndexSearch =
+                                con.prepareStatement(Operations.readQuery("preparedFishIndexSearch"));
 
-			String fishIndexSearch="SELECT 	SUM(pituus) AS pituus, COUNT(kalaid) as lkm "+
-								"FROM 	kalahavainto "+
-								"WHERE 	havaitsija=? AND YEAR(paivamaara)=?;";
-			preparedFishIndexSearch=con.prepareStatement(fishIndexSearch);
+//			String fishMaxLenghtIdSearch="SELECT k.id "+
+//			"FROM kalahavainto AS k "+
+//			"WHERE k.havaitsija=? AND k.kalaid=? AND YEAR(k.paivamaara)=? "+
+//			" AND k.pituus=(SELECT MAX(pituus)"+
+//						" FROM kalahavainto"+
+//						" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=?)"+
+//			"ORDER BY paivamaara desc;";
+			preparedFishMaxLengthSearch =
+                                con.prepareStatement(Operations.readQuery("preparedFishMaxLengthSearch"));
 
-			String fishMaxLenghtIdSearch="SELECT k.id "+
-			"FROM kalahavainto AS k "+
-			"WHERE k.havaitsija=? AND k.kalaid=? AND YEAR(k.paivamaara)=? "+
-			" AND k.pituus=(SELECT MAX(pituus)"+
-						" FROM kalahavainto"+
-						" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=?)"+
-			"ORDER BY paivamaara desc;";
-			preparedFishMaxLengthSearch=con.prepareStatement(fishMaxLenghtIdSearch);
+//			String deleteduplicateFishCatch="DELETE FROM kalahavainto"+
+//			" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?";
+			preparedFishCatchDuplicateDelete =
+                                con.prepareStatement(Operations.readQuery("preparedFishCatchDuplicateDelete"));
 
-			String deleteduplicateFishCatch="DELETE FROM kalahavainto"+
-			" WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?";
-			preparedFishCatchDuplicateDelete=con.prepareStatement(deleteduplicateFishCatch);
+//			String deleteFishCatchBiId="DELETE FROM kalahavainto WHERE id=? AND havaitsija=?;";
+			preparedFishCatchDeleteById =
+                                con.prepareStatement(Operations.readQuery("preparedFishCatchDeleteById"));
 
-			String deleteFishCatchBiId="DELETE FROM kalahavainto WHERE id=? AND havaitsija=?;";
-			preparedFishCatchDeleteById=con.prepareStatement(deleteFishCatchBiId);
+//			String insertUserSql="INSERT INTO kayttaja(nimi,salasana) VALUES (?,?);";
+			insertUser =
+                                con.prepareStatement(Operations.readQuery("insertUser"));
 
-			String insertUserSql="INSERT INTO kayttaja(nimi,salasana) VALUES (?,?);";
-			insertUser=con.prepareStatement(insertUserSql);
+			deleteUser =
+                                con.prepareStatement(Operations.readQuery("deleteUser"));
+//			                                "DELETE FROM kayttaja WHERE kayttaja.nimi = '?';"
+//			                        );
 
-			deleteUser = con.prepareStatement(
-			                                "DELETE FROM kayttaja WHERE kayttaja.nimi = '?';"
-			                        );
-
-			String getUserIdSql="SELECT id FROM kayttaja WHERE nimi=? AND salasana=?;";
-			getUserId=con.prepareStatement(getUserIdSql);
-
+//			String getUserIdSql="SELECT id FROM kayttaja WHERE nimi=? AND salasana=?;";
+			getUserId =
+                                con.prepareStatement(Operations.readQuery("getUserId"));
+                        
 			return true;
 
 		}catch (ClassNotFoundException | SQLException e){
@@ -333,11 +361,12 @@ public class DB_connection {
          * Poistaa havainnon ID:n perusteella
          * @param id 
          */
-        public void deleteHavainto(int id){
-            SQLOperations.deleteHavainto(id);
+        public void deleteLintuHavainto(int id){
+            
         }
-        
-        public Havainto 
+        public void deleteKalaHavainto(int id){
+            
+        }
 
 	/**
 	 * P#ivitt## havainnon annetulla havainnolla

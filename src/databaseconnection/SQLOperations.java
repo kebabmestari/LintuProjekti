@@ -156,6 +156,31 @@ public class SQLOperations {
 							return;
 			}
 	}
+        
+//        public static void deleteLintuHavainto(int id, PreparedStatement stm){
+//            deleteHavainto("lintuhavainto", id, stm);
+//        }
+//        public static void deleteKalaHavainto(int id, PreparedStatement stm){
+//            deleteHavainto("kalahavainto", id, stm);
+//        }
+//        
+//        private static void deleteHavainto(String taulu, int id, PreparedStatement stm){
+//            try{
+//                stm.setString(1, taulu);
+//                stm.setInt(2, id);
+//                int m = stm.executeUpdate();
+//                if(m == 0){
+//                    System.err.println("Havaintoa ei löydetty");
+//                    return true;
+//                } else if(m > 1){
+//                    System.err.println("Havainto ei yksiselitteinen!");
+//                    return false;
+//                }
+//            } catch(SQLException e){
+//                System.err.println("Ei voida poistaa taulusta " + taulu);
+//            }
+//            return true;
+//        }
 
 	/**
 	 * Etsii kalan nimen sen alkukirjaimen perusteella

@@ -1,0 +1,104 @@
+#Hae linnun lajin nimi nimen alkuosan perusteella
+#--------------------------
+>preparedBirdNameSearch
+SELECT nimi 
+FROM lintu 
+WHERE nimi LIKE ? 
+ORDER BY yleisyys;
+
+#Hae linnun ID nimen perusteella
+#--------------------------
+>preparedBirdIdSearch
+SELECT id 
+FROM lintu 
+WHERE nimi=?;
+
+#Hae linnun nimi ID:n perusteella
+#--------------------------
+>preparedGetBirdName
+SELECT nimi 
+FROM lintu 
+WHERE id=?;
+
+#Hae kalan lajikkeen nimi nimen osan perusteella
+#--------------------------
+>preparedFishNameSearch
+SELECT nimi 
+FROM kala 
+WHERE nimi LIKE ?;
+
+#Hae kalan ID lajin nimen perusteella
+#--------------------------
+>preparedFishIdSearch
+SELECT id 
+FROM kala 
+WHERE nimi=?;
+
+#Hae kalan lajikkeen nimi ID:n perusteella
+#--------------------------
+>preparedGetFishName
+SELECT nimi 
+FROM kala 
+WHERE id=?;
+
+#Hae kunnan nimi nimen osan perusteella
+#--------------------------
+>preparedTownSearch
+SELECT nimi 
+FROM kunta 
+WHERE nimi LIKE ?;
+
+#Hae kalahavainnon kaikki tiedot havaitsijan ja päivämäärän perusteella
+#Tässä oletetaan ettei samana päivänä ole rekisteröity kahta havaintoa samasta lajikkeesta
+#sillä vain yksi havainto per päivä lasketaan
+#--------------------------
+>preparedFishCatchDataSearch
+SELECT * 
+FROM kalahavainto 
+WHERE havaitsija=? AND YEAR(paivamaara)=?;
+
+#Kuinka monta kertaa tietty käyttäjä on havainnut kunkin lajin vuoden aikana
+#--------------------------
+>preparedFishIndexCheck
+SELECT COUNT(*) AS lkm, kalaid 
+FROM kalahavainto 
+WHERE havaitsija=? AND YEAR(paivamaara)=? 
+GROUP BY kalaid 
+HAVING COUNT(*)>1;
+
+#Kuinka 'paljon' eli pituuksien summa kutakin kalalajiketta kohden vuoden aikana
+#--------------------------
+>preparedFishIndexSearch
+SELECT 	SUM(pituus) AS pituus, COUNT(kalaid) as lkm 
+FROM kalahavainto 
+WHERE havaitsija=? AND YEAR(paivamaara)=?;
+
+#Hae käyttäjän vuoden suurin havaitsema yksilö tiettyä lajia
+#--------------------------
+>preparedFishMaxLengthSearch
+SELECT k.id 
+FROM kalahavainto AS k 
+WHERE k.havaitsija=? AND k.kalaid=? AND YEAR(k.paivamaara)=? 
+		AND k.pituus=(SELECT MAX(pituus)
+						FROM kalahavainto 
+						WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=?)
+						ORDER BY paivamaara desc;
+
+#Poista vuoden aikana kertyneet kalahavaintojen duplikaatit
+#--------------------------
+>preparedFishCatchDuplicateDelete
+DELETE FROM kalahavainto 
+WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?
+
+#Poista kalahavainto havainnon ID:n perusteella
+#--------------------------
+>preparedFishCatchDeleteById
+DELETE FROM kalahavainto 
+WHERE id=? AND havaitsija=?;
+
+#Hae käyttäjän ID
+#--------------------------
+>getUserId
+SELECT id
+FROM kayttaja
+WHERE nimi=? AND salasana=?;
