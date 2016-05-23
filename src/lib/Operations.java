@@ -69,11 +69,11 @@ public class Operations {
         return pvm;
     }
     
-    public static String readQuery(String queryname){
+    public static String readQuery(String queryname) throws Exception{
         File f = new File("kyselyt.txt");
         if(!f.exists()){
             System.err.println("Tiedostoa kyselyt.txt ei löydy");
-            return null;
+            throw new Exception("Virhe tiedostonluvussa");
         }
         try{
             BufferedReader cin = new BufferedReader(new FileReader(f));
@@ -84,7 +84,7 @@ public class Operations {
             e.printStackTrace();
         }
         
-        return null;
+        throw new Exception("Virhe tiedostonluvussa");
     }
 
     private static boolean scrollPastLine(BufferedReader cin, String line){
@@ -95,8 +95,10 @@ public class Operations {
                     System.err.println("Kyselyä " + line + " ei löydy tiedostosta!");
                     return false;
                 }
-                if(s.substring(1).equals(line) && s.charAt(0) == '>'){
-                    return true;
+                if(s.length() > 1){
+                    if(s.substring(1).equals(line) && s.charAt(0) == '>'){
+                        return true;
+                    }
                 }
             }
         } catch(IOException e){

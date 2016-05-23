@@ -202,7 +202,10 @@ public class DB_connection {
 		}catch (ClassNotFoundException | SQLException e){
 			e.printStackTrace();
 			return false;
-		}
+		} catch(Exception e){
+                    System.exit(1);
+                }
+            return false;
 	}
 
 	/**

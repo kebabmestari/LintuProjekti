@@ -1,3 +1,32 @@
+##YLEISET
+################################
+
+#Syntaksi
+#Risuaita edeltää kommenttia, ignorataan parsiessa
+#Välilyönnit, tabit ignorataan, kyselyt voi rivittää
+#> edeltää preparedStatementin nimeä
+
+#Hae kunnan nimi nimen osan perusteella
+#--------------------------
+>preparedTownSearch
+SELECT nimi 
+FROM kunta 
+WHERE nimi LIKE ?;
+
+#Hae käyttäjän ID
+#--------------------------
+>getUserId
+SELECT id
+FROM kayttaja
+WHERE nimi=? AND salasana=?;
+
+
+#Poista käyttäjä
+>deleteusr
+
+##LINNUT
+################################
+
 #Hae linnun lajin nimi nimen alkuosan perusteella
 #--------------------------
 >preparedBirdNameSearch
@@ -20,6 +49,14 @@ SELECT nimi
 FROM lintu 
 WHERE id=?;
 
+#Hae lintuhavainnot tietyltä aikaväliltä
+>preparedBirdWatchQuery
+SELECT * FROM lintuhavainto
+WHERE paivamaara BETWEEN ? AND ?
+
+##KALAT
+################################
+
 #Hae kalan lajikkeen nimi nimen osan perusteella
 #--------------------------
 >preparedFishNameSearch
@@ -40,13 +77,6 @@ WHERE nimi=?;
 SELECT nimi 
 FROM kala 
 WHERE id=?;
-
-#Hae kunnan nimi nimen osan perusteella
-#--------------------------
->preparedTownSearch
-SELECT nimi 
-FROM kunta 
-WHERE nimi LIKE ?;
 
 #Hae kalahavainnon kaikki tiedot havaitsijan ja päivämäärän perusteella
 #Tässä oletetaan ettei samana päivänä ole rekisteröity kahta havaintoa samasta lajikkeesta
@@ -95,10 +125,3 @@ WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?
 >preparedFishCatchDeleteById
 DELETE FROM kalahavainto 
 WHERE id=? AND havaitsija=?;
-
-#Hae käyttäjän ID
-#--------------------------
->getUserId
-SELECT id
-FROM kayttaja
-WHERE nimi=? AND salasana=?;
