@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import databaseconnection.DB_connection;
 import databaseobjects.Json;
 import databaseobjects.Paivamaara;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class Operations {
@@ -61,5 +68,63 @@ public class Operations {
         }
         return pvm;
     }
+    
+    public static String readQuery(String queryname){
+        File f = new File("kyselyt.txt");
+        if(!f.exists()){
+            System.err.println("Tiedostoa kyselyt.txt ei löydy");
+            return null;
+        }
+        try{
+            BufferedReader cin = new BufferedReader(new FileReader(f));
+            if(scrollPastLine(cin, queryname)){
+                return readQueryString(cin);
+            }
+        } catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
 
+    private static boolean scrollPastLine(BufferedReader cin, String line){
+        try{
+            while(true){
+                String s = cin.readLine();
+                if(s == null){
+                    System.err.println("Kyselyä " + line + " ei löydy tiedostosta!");
+                    return false;
+                }
+                if(s.substring(1).equals(line) && s.charAt(0) == '>'){
+                    return true;
+                }
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    private static String readQueryString(BufferedReader cin){
+        StringBuilder result = new StringBuilder("");
+        try{
+            String s = null;
+            while((s = cin.readLine()) != null){
+                s = s.trim();
+                if(s.isEmpty()) break;
+                if(s.charAt(0) != '#'){
+                    result.append(" " + s);
+                }   
+            }
+            if(result == null){
+                System.err.println("Virhe kyselyä luettaessa");
+            }
+            return result.substring(1).toString();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        System.err.println("SQL-kyselyä ei voitu lukea");
+        return "";
+    }
+            
 }

@@ -185,9 +185,11 @@ public class Softa {
                     tulostaRivi(rs2.getInt("id") + " " + rs2.getInt("lintuid") + " " + rs2.getString("paikka") +
                             rs2.getString("paivamaara"));
                 }
+                hID = Integer.parseInt(getInput("Valitse ID"));
             } catch(SQLException e){
                 e.printStackTrace();
             }
+            
         }
     }
     
