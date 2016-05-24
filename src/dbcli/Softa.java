@@ -1,10 +1,12 @@
 package dbcli;
 
-import com.sun.xml.internal.ws.util.StringUtils;
+//import com.sun.xml.internal.ws.util.StringUtils;
 import databaseconnection.DB_connection;
+import databaseobjects.Havainto;
 import databaseobjects.Kala;
 import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
+import databaseobjects.Kuva;
 import databaseobjects.Lintu;
 import databaseobjects.Lintuhavainto;
 import java.io.BufferedReader;
@@ -20,10 +22,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lib.Operations;
 
@@ -59,6 +61,7 @@ public class Softa {
                                         {"Muokkaa käyttäjiä", "Lisää käyttäjä", "Poista käyttäjä"},
                                         {"Muokkaa havaintoja", "Lisää havainto", "Poista havainto", "Hae havainto"},
                                         {"Muokkaa lajeja", "Lisää laji", "Poista laji", "Hae laji"},
+                                        {"Hae kuvat"},
                                         {"Yleinen SQL-kysely"},
                                         {"Hae tiedokannan tiedot"}};
     
@@ -83,7 +86,12 @@ public class Softa {
             tulostaValinnat();
             tulostaVali("-");
             int foo = 0;
-            foo = inScanner.nextInt();
+            try{
+                foo = inScanner.nextInt();
+            } catch(InputMismatchException e){
+                inScanner.next();
+                continue;
+            }
             if(valikkosyvyys == 0){
                 if(foo > 0 && foo <= valikko.length){
                     switch(foo){
@@ -94,9 +102,12 @@ public class Softa {
                             valinta = foo;
                             continue;
                         case 4:
-                            toteutaYleinenKysely();
+                            haeKuvat();
                             continue;
                         case 5:
+                            toteutaYleinenKysely();
+                            continue;
+                        case 6:
                             dbConn.printInfo();
                             continue;
                         default:
@@ -124,10 +135,10 @@ public class Softa {
                             lisaaHavainto();
                             continue;
                         case 2:
-//                            poistaHavainto();
+                            poistaHavainto();
                             continue;
                         case 3:
-//                            haeHavainto();
+                            haeHavainto();
                     }
                     continue;
                 } else if(valinta == 3){ //Lajit
@@ -150,7 +161,74 @@ public class Softa {
         }
     }
     
-    private static void getHavainto(){
+    private static void haeKuvat(){
+        int lvk = lintuVaiKala();
+        
+        ArrayList<Kuva> list = null;
+        if(lvk == 1){
+            String nimi = getInput("Linnun nimi");
+            list = dbConn.getBirdPic(nimi);
+        } else if (lvk == 2){
+            String nimi = getInput("Kalan nimi");
+            list = dbConn.getFishPic(nimi);
+        } else{
+            return;
+        }
+        
+        if(list == null){
+            return;
+        }
+        
+        for(Kuva k : list){
+            tulostaRivi(k.getFilename());
+        }
+        
+        if(list.size() == 0){
+            tulostaRivi("Ei löytynyt kuvia!");
+        }
+        
+        return;
+    }
+    
+    private static void poistaHavainto(){
+        tulostaRivi("Poistetaan havaintoa...");
+        Havainto hav = getHavainto();
+        if(hav instanceof Lintuhavainto){
+            Lintuhavainto hav2 = (Lintuhavainto) hav;
+            tulostaRivi("Poistetaan lintuhavainto " + hav2.getId());
+            dbConn.deleteLintuHavainto(hav2.getId());
+        } else if(hav instanceof Kalahavainto){
+            Kalahavainto hav2 = (Kalahavainto) hav;
+            tulostaRivi("Poistetaan kalahavainto " + hav2.getId());
+            dbConn.deleteKalaHavainto(hav2.getId());
+        }
+    }
+    
+    private static void haeHavainto(){
+        Havainto hav = getHavainto();
+        if(hav == null){
+            return;
+        }
+        if(hav instanceof Lintuhavainto){
+            Lintuhavainto hav2 = (Lintuhavainto)hav;
+            tulostaRivi("ID: " + hav2.getId());
+            tulostaRivi("Laji: " + hav2.getLintuId());
+            tulostaRivi("Havaitsija: " + hav2.getHavaitsija());
+            tulostaRivi("Paikka: " + hav2.getPaikka());
+            tulostaRivi("Sponde: " + hav2.isSponde());
+            tulostaRivi("Eko: " + hav2.isEko());
+        } else if(hav instanceof Kalahavainto){
+            Kalahavainto hav2 = (Kalahavainto)hav;
+            tulostaRivi("ID: " + hav2.getId());
+            tulostaRivi("Laji: " + hav2.getKalaid());
+            tulostaRivi("Havaitsija: " + hav2.getHavaitsija());
+            tulostaRivi("Paikka: " + hav2.getPaikka());
+            tulostaRivi("Pituus: " + hav2.getPituus());
+        }
+    }
+    
+    private static Havainto getHavainto(){
+        int lintukala = lintuVaiKala();
         String in = getInput("Syötä havaitsijan nimi tai havainnon ID");
         boolean isNumeric = true;
         int hID = 0;
@@ -161,39 +239,49 @@ public class Softa {
             isNumeric = false;
         }
         
-        if(!isNumeric){
+        if(isNumeric){
             hID = Integer.parseInt(in);
         } else{
-            String paiva = getInput("Syötä havaintopäivä muodossa dd-mm-yyy");
-            Pattern pat = Pattern.compile("(//d{2})-(//d){2}-{//d}{2}");
-            Matcher mat = pat.matcher(paiva);
-            if(!mat.matches()){
-                virhe("Invalid input");
-                return;
+            String paiva = getInput("Syötä havaintopäivä muodossa yyyy-mm-dd");
+            if(!Pattern.matches("(\\d){4}-(\\d){2}-(\\d){2}", paiva)){
+                virhe("Virheellinen päiväinput");
+                return null;
             }
-            String sql = "SELECT id, kalaid, paikka, paivamaara, pituus FROM kalahavainto WHERE paivamaara = '" + paiva + "';";
-            String sql2 = "SELECT id, lintuid, paikka, paivamaara FROM lintuhavainto WHERE paivamaara = '" + paiva + "';";
+            String taulu = (lintukala == 1) ? "lintuhavainto": "kalahavainto";
+            String tID = (lintukala==1?"lintuid":"kalaid");
+            String sql = "SELECT id, " + tID + ", paikka, paivamaara FROM " + taulu +
+                    " WHERE paivamaara = '" + paiva + "' AND havaitsija = " + dbConn.getUserID(in) + ";";
+
             ResultSet rs1 = dbConn.commitGeneralQuery(sql);
-            ResultSet rs2 = dbConn.commitGeneralQuery(sql2);
             try{
-                tulostaRivi("ID Lajike Paikka Paivamaara (Pituus)");
-                while(rs1.next()){
-                    tulostaRivi(rs1.getInt("id") + " " + rs1.getInt("kalaid") + " " + rs1.getString("paikka") +
-                            rs1.getString("paivamaara") + " " + rs1.getInt("pituus"));
+                if(!rs1.next()){
+                    virhe("Ei havaintoja");
+                    return null;
                 }
-                while(rs2.next()){
-                    tulostaRivi(rs2.getInt("id") + " " + rs2.getInt("lintuid") + " " + rs2.getString("paikka") +
-                            rs2.getString("paivamaara"));
-                }
+                tulostaRivi("ID Lajike Paikka Paivamaara");
+                do{
+                    tulostaRivi(rs1.getInt("id") + " " + rs1.getInt(tID) + " " + rs1.getString("paikka") + " " +
+                            
+                            
+                            
+                            
+                            rs1.getString("paivamaara"));
+                } while(rs1.next());
                 hID = Integer.parseInt(getInput("Valitse ID"));
             } catch(SQLException e){
                 e.printStackTrace();
             }
             
+            if(lintukala == 1){
+                return (Havainto)dbConn.getBirdWatchById(hID);
+            } else{
+                return (Havainto)dbConn.getFishCatchById(hID);
+            }
         }
+        return null;
     }
     
-    public int lintuVaiKala(){
+    public static int lintuVaiKala(){
         while(true){
             String in = getInput("(L)intu vai (k)ala").toLowerCase();
             if(in.equals("l"))
@@ -240,6 +328,7 @@ public class Softa {
                         throw new SQLException("Ei yksiselitteistä lajia");
                     }
                     lajiId = kl.get(0).getId();
+                    System.out.println(lajiId);
                 } catch(SQLException e){
                     tulosta("Virhe lajia etsittäessä", true, false);
                     return;

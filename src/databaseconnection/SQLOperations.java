@@ -13,6 +13,7 @@ import databaseobjects.Kala;
 import databaseobjects.Kalahavainto;
 import databaseobjects.Kayttaja;
 import databaseobjects.Kunta;
+import databaseobjects.Kuva;
 import databaseobjects.Lintu;
 import databaseobjects.Lintuhavainto;
 import databaseobjects.Paivamaara;
@@ -410,6 +411,32 @@ public class SQLOperations {
 			return -1;
 		}
 	}
+        
+        /**
+         * Hae kalan tai linnun kuvan URI tietokannasta
+         * @param kalaid Kalan id, jos haetaan lintua aseta 0
+         * @param lintuid Linnun id, jos kalaa niin 0
+         * @param stm Preparedstatement
+         * @return Kuva objekti
+         */
+        public static ArrayList<Kuva> getPicture(int kalaid, int lintuid, PreparedStatement stm){
+            ArrayList<Kuva> tulos = new ArrayList<>();
+            try{
+                if(kalaid == 0 && lintuid != 0){
+                    stm.setInt(1, lintuid);
+                } else if(kalaid != 0 && lintuid == 0){
+                    stm.setInt(1, kalaid);
+                }
+                ResultSet rs = stm.executeQuery();
+                while(rs.next()){
+                    Kuva kuv = new Kuva(rs.getString("fileURI"), lintuid, kalaid);
+                    tulos.add(kuv);
+                }
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+            return tulos;
+        }
 
 	/**
 	 * Lisää kaikki ne listan alkiot sitä vastaan tauluun,
