@@ -90,7 +90,7 @@ WHERE id=?;
 ##LINTUHAVAINNOT
 ################################
 
-#Hakee yksittäisen lintuhavainnon tiedot
+#Hakee yksittï¿½isen lintuhavainnon tiedot
 #--------------------------
 >preparedBirdWatchByID
 SELECT * FROM lintuhavainto
@@ -126,6 +126,20 @@ WHERE id = ?;
 ##KALAT
 ################################
 
+#Hakee havaitsijan lintuhavainnot annetulta aikavalilta
+#--------------------------
+>preparedGetBirdWatchData
+SELECT * 
+FROM lintuhavainto 
+WHERE havaitsija=? AND paivamaara>=? AND paivamaara<=?;
+
+#Hakee kaikkien lintuhavainnot annetulta aika-alueelta
+#-------------------------
+>preparedBirdWatchQuery
+SELECT * 
+FROM lintuhavainto 
+WHERE paivamaara BETWEEN ? AND ?;
+
 #Hae kalan lajikkeen nimi nimen osan perusteella
 #--------------------------
 >preparedFishNameSearch
@@ -150,23 +164,9 @@ WHERE id=?;
 ##KALAHAVAINNOT
 ################################
 
-#Hakee yksittäisen kalahavainnon tiedot
-#--------------------------
->preparedFishCatchByID
-SELECT * FROM kalahavainto
-WHERE id=?;
-
-#Kalahavaintodatan haku aika-alueelta
-
-#-------------------------
->preparedFishCatchQuery
-SELECT * 
-FROM kalahavainto
-WHERE paivamaara BETWEEN ? AND ?;
-
-#Hae kalahavainnon kaikki tiedot havaitsijan ja paivamaaran perusteella
-#Tassa oletetaan ettei samana paivana ole rekisteroity kahta havaintoa samasta lajikkeesta
-#silla vain yksi havainto per paiva lasketaan
+#Hae kalahavainnon kaikki tiedot havaitsijan ja pï¿½ivï¿½mï¿½ï¿½rï¿½n perusteella
+#Tï¿½ssï¿½ oletetaan ettei samana pï¿½ivï¿½nï¿½ ole rekisterï¿½ity kahta havaintoa samasta lajikkeesta
+#sillï¿½ vain yksi havainto per pï¿½ivï¿½ lasketaan
 #--------------------------
 >preparedFishCatchDataSearch
 SELECT * 
@@ -182,14 +182,15 @@ WHERE havaitsija=? AND YEAR(paivamaara)=?
 GROUP BY kalaid 
 HAVING COUNT(*)>1;
 
-#Kuinka 'paljon' eli pituuksien summa kutakin kalalajiketta kohden vuoden aikana
+#Haetaan kalalajien lukumaara ja kokonaispituus, joista lasketaan kertomalla fongausindeksi
+#Fongauksen tavoite on mahdollisimman suuri fongausindeksi
 #--------------------------
 >preparedFishIndexSearch
 SELECT 	SUM(pituus) AS pituus, COUNT(kalaid) as lkm 
 FROM kalahavainto 
 WHERE havaitsija=? AND YEAR(paivamaara)=?;
 
-#Hae kayttajan vuoden suurin havaitsema yksilo tiettya lajia
+#Hae kï¿½yttï¿½jï¿½n vuoden suurin havaitsema yksilï¿½ tiettyï¿½ lajia
 #--------------------------
 >preparedFishMaxLengthSearch
 SELECT k.id 
@@ -212,9 +213,19 @@ WHERE havaitsija=? AND kalaid=? AND YEAR(paivamaara)=? AND id<>?;
 DELETE FROM kalahavainto 
 WHERE id=? AND havaitsija=?;
 
-#Etsii havaitsijan nimen havainnon ID:n perusteella
+#Hae kï¿½yttï¿½jï¿½n ID
 #--------------------------
->preparedFishCatchGetUser
-SELECT havaitsija
-FROM kalahavainto
-WHERE id = ?;
+>getUserId
+SELECT id
+FROM kayttaja
+WHERE nimi=? AND salasana=?;
+
+#Uusi kayttaja
+#-------------------------
+>insertUser
+INSERT INTO kayttaja(nimi,salasana) VALUES (?,?);
+
+#Poista kayttaja nimen ja salasanan perusteella
+#-------------------------
+>deleteUser
+DELETE FROM kayttaja WHERE kayttaja.nimi = ? AND kayttaja.salasana=?;
