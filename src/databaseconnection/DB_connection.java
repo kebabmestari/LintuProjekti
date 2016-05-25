@@ -24,7 +24,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
 public class DB_connection {
-
     private final String DB_URI;
     private final String user; 				//"root"
     private final String password;			//"mysli"
@@ -53,6 +52,7 @@ public class DB_connection {
     private PreparedStatement preparedBirdWatchQuery = null;
     private PreparedStatement preparedBirdWatchDeleteById = null;
     private PreparedStatement preparedBirdWatchGetUser = null;
+    private PreparedStatement preparedGetVuodarit=null;
 
     /**
      * Kalan
@@ -199,6 +199,9 @@ public class DB_connection {
 
             preparedGetFishPics
                     = con.prepareStatement(Operations.readQuery("preparedGetFishPics"));
+            
+            preparedGetVuodarit
+                    = con.prepareStatement(Operations.readQuery("preparedGetVuodarit"));
 
             return true;
 
@@ -672,4 +675,16 @@ public class DB_connection {
         System.out.println(birdArray.size());
         return Operations.arrayToJSON(birdArray, this);
     }
+    
+    /**
+     * Hakee vuodarit eli vuodenpinnat
+     * @param user Käyttäjä kenen havainnot haetaan
+     * @param vuosi Miltä vuodelta
+     * @return 
+     */
+    public int getVuodarit(Kayttaja user, int vuosi){
+        ArrayList<Lintu> vuodarit=
+         SQLOperations.getVuodarit(user, vuosi, preparedGetVuodarit, preparedBirdNameSearch);
+        return vuodarit.size();
+    } 
 }

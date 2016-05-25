@@ -123,6 +123,14 @@ SELECT havaitsija
 FROM lintuhavainto
 WHERE id = ?;
 
+#Hakee havaitsijan kaikki (eko ja sponde -maareista huolimatta) vuodenpinnat pvm jarjestyksessa
+#--------------------------
+>preparedGetVuodarit
+SELECT DISTINCT lintuid 
+FROM lintuhavainto 
+WHERE havaitsija=? AND YEAR(paivamaara)=?
+ORDER BY paivamaara;
+
 ##KALAT
 ################################
 

@@ -426,6 +426,9 @@ public class SQLOperations {
                     stm.setInt(1, lintuid);
                 } else if(kalaid != 0 && lintuid == 0){
                     stm.setInt(1, kalaid);
+                } else{
+                    System.err.println("Virhe!");
+                    return tulos;
                 }
                 ResultSet rs = stm.executeQuery();
                 while(rs.next()){
@@ -745,4 +748,28 @@ public class SQLOperations {
 		}
 		return null;
 	}
+    /**
+    * Palauttaa vuodenpinnat aikajarjestyksessa
+    * @param user
+    * @param vuosi
+    * @param preparedGetVuodarit
+     * @param preparedBirdNameSearch
+    * @return vuodenpinnat lintulistassa
+    */
+    public static ArrayList<Lintu> getVuodarit(Kayttaja user, int vuosi, PreparedStatement preparedGetVuodarit, PreparedStatement preparedBirdNameSearch) {
+        ArrayList<Lintu> vuodarilista=new ArrayList<>();
+        try {
+                preparedGetVuodarit.setInt(1, user.getId());
+                preparedGetVuodarit.setInt(2, vuosi);
+            try (ResultSet rs = preparedGetVuodarit.executeQuery()) {
+                while(rs.next()){
+                    vuodarilista.add(new Lintu(getBirdNameById(rs.getInt("lintuid"), preparedBirdNameSearch)));
+                }
+            }
+                return vuodarilista;
+            } catch (SQLException ex) {
+                Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
+    }
 }
