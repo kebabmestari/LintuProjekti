@@ -6,12 +6,18 @@
 #Valilyonnit, tabit ignorataan, kyselyt voi rivittaa
 #> edeltaa preparedStatementin nimea
 
+##KUNTA
+##############################
+
 #Hae kunnan nimi nimen osan perusteella
 #--------------------------
 >preparedTownSearch
 SELECT nimi 
 FROM kunta 
 WHERE nimi LIKE ?;
+
+##KAYTTAJA
+#############################
 
 #Hae kayttajan ID
 #--------------------------
@@ -65,12 +71,12 @@ WHERE lintuid = ?;
 ##LINNUT
 ################################
 
-#Hae linnun lajin nimi nimen alkuosan perusteella
+#Hae linnun lajin nimi, id ja yleisyys nimen alkuosan perusteella
 #--------------------------
 >preparedBirdNameSearch
 SELECT nimi, id, yleisyys
 FROM lintu 
-WHERE nimi LIKE ? 
+WHERE nimi LIKE ?
 ORDER BY yleisyys;
 
 #Hae linnun ID nimen perusteella
@@ -90,7 +96,7 @@ WHERE id=?;
 ##LINTUHAVAINNOT
 ################################
 
-#Hakee yksittäisen lintuhavainnon tiedot
+#Hakee yksittaisen lintuhavainnon tiedot
 #--------------------------
 >preparedBirdWatchByID
 SELECT * FROM lintuhavainto
@@ -116,20 +122,25 @@ WHERE paivamaara BETWEEN ? AND ?
 DELETE FROM lintuhavainto
 WHERE id=? AND havaitsija=?;
 
-#Etsii havaitsijan nimen havainnon ID:n perusteella
+#Etsii havaitsijan id:n havainnon ID:n perusteella
 #--------------------------
 >preparedBirdWatchGetUser
 SELECT havaitsija
 FROM lintuhavainto
 WHERE id = ?;
 
-#Hakee havaitsijan kaikki (eko ja sponde -maareista huolimatta) vuodenpinnat pvm jarjestyksessa
+#PÃ¤ivpinnojen haku
+#Jos haetaan ekopinnoja tai spondepinnoja laitetaan 1, muuten nolla
+#Nollalla tulee havainto riippumatta siitÃ¤, onko eko/sponde vai ei
 #--------------------------
->preparedGetVuodarit
-SELECT DISTINCT lintuid 
-FROM lintuhavainto 
-WHERE havaitsija=? AND YEAR(paivamaara)=?
-ORDER BY paivamaara;
+>preparedDayBirdWatchSearch
+SELECT * FROM lintuhavainto WHERE havaitsija=? AND MONTH(paivamaara)=? AND DAY(paivamaara)=? AND eko>=? AND sponde>=?;	
+
+#Tietyn vuoden kuukausipinnojen haku
+#Jos haetaan eko/spondepinnoja laitetaan 1, muuten 0
+#--------------------------
+>preparedMonthBirdWatchSearch
+SELECT * FROM lintuhavainto WHERE havaitsija=? AND YEAR(paivamaara)=? AND MONTH(paivamaara)=? AND eko>=? AND sponde>=?;
 
 ##KALAT
 ################################
@@ -148,7 +159,7 @@ SELECT id
 FROM kala 
 WHERE nimi=?;
 
-#Hae kalan lajikkeen nimi ID:n perusteella
+#Hae kalan lajin nimi ID:n perusteella
 #--------------------------
 >preparedGetFishName
 SELECT nimi 
@@ -158,14 +169,14 @@ WHERE id=?;
 ##KALAHAVAINNOT
 ################################
 
-#Hakee yksittäisen kalahavainnon tiedot
+#Hakee yksittÃ¤isen kalahavainnon tiedot
 #--------------------------
 >preparedFishCatchByID
 SELECT * FROM kalahavainto
 WHERE id=?;
 
 #Kalahavaintodatan haku aika-alueelta
-
+#Kaikkien kayttajien
 #-------------------------
 >preparedFishCatchQuery
 SELECT * 
@@ -173,7 +184,7 @@ FROM kalahavainto
 WHERE paivamaara BETWEEN ? AND ?;
 
 #Hae kalahavainnon kaikki tiedot havaitsijan ja paivamaaran perusteella
-#Tassa oletetaan ettei samana paivana ole rekisteroity kahta havaintoa samasta lajikkeesta
+#Tassa oletetaan ettei samana paivana ole rekisteroity kahta havaintoa samasta lajista
 #silla vain yksi havainto per paiva lasketaan
 #--------------------------
 >preparedFishCatchDataSearch
@@ -182,6 +193,7 @@ FROM kalahavainto
 WHERE havaitsija=? AND YEAR(paivamaara)=?;
 
 #Kuinka monta kertaa tietty kayttaja on havainnut kunkin lajin vuoden aikana
+#Vain ne, joita on yli yksi, eli on virheellinen
 #--------------------------
 >preparedFishIndexCheck
 SELECT COUNT(*) AS lkm, kalaid 
@@ -190,7 +202,9 @@ WHERE havaitsija=? AND YEAR(paivamaara)=?
 GROUP BY kalaid 
 HAVING COUNT(*)>1;
 
-#Kuinka 'paljon' eli pituuksien summa kutakin kalalajiketta kohden vuoden aikana
+#Haetaan kalalajien lukumaara ja kokonaispituus,
+#joista lasketaan kertomalla fongausindeksi
+#Fongauksen tavoite on mahdollisimman suuri fongausindeksi
 #--------------------------
 >preparedFishIndexSearch
 SELECT 	SUM(pituus) AS pituus, COUNT(kalaid) as lkm 
