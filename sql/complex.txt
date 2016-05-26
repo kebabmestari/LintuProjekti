@@ -1,0 +1,94 @@
+Tässä tekstitiedostossa monimutkaisemmat serveripuolen komennot
+
+Lintuhavainnon trigger, estää ettei lisätä kahta havaintoa samasta linnusta samana päivänä
+=====
+DELIMITER $$
+CREATE TRIGGER before_lintuhavainto_insert
+BEFORE INSERT ON lintuhavainto
+FOR EACH ROW
+BEGIN
+DECLARE numero INT DEFAULT 0;
+SELECT COUNT(*) INTO numero FROM lintuhavainto AS l
+WHERE l.lintuid = NEW.lintuid AND l.havaitsija = NEW.havaitsija
+AND l.paivamaara = NEW.paivamaara;
+IF numero > 0 THEN
+SIGNAL SQLSTATE '45000'
+SET MESSAGE_TEXT = 'Ei kahta havaintoa samana päivänä';
+END IF;
+END$$
+DELIMITER ;
+
+Kalahavainnon trigger, estää kahden havainnon lisäämisen samasta lajikkeesta samana vuonna 
+=====
+DELIMITER $$ 
+CREATE TRIGGER before_kalahavainto_insert 
+BEFORE INSERT ON kalahavainto 
+FOR EACH ROW 
+BEGIN 
+ 
+DECLARE numero INT DEFAULT 0; 
+ 
+SELECT COUNT(*) INTO numero FROM kalahavainto AS k 
+WHERE k.kalaid = NEW.kalaid AND l.havaitsija = NEW.havaitsija 
+AND YEAR(l.paivamaara) = YEAR(NEW.paivamaara); 
+ 
+IF numero > 0 THEN 
+SIGNAL SQLSTATE '45000' 
+SET MESSAGE_TEXT = 'Ei kahta havaintoa samana vuonna!'; 
+END IF; 
+ 
+END$$ 
+DELIMITER ; 
+ 
+Funktio, joka hakee annetun kalalajin pisimmän havaitun yksilön 
+ =====
+DELIMITER $$ 
+CREATE FUNCTION getLongestFish (laji INT) 
+RETURNS INT DETERMINISTIC 
+BEGIN 
+ 
+DECLARE pisin INT DEFAULT 0; 
+ 
+SELECT pituus INTO pisin FROM 
+kalahavainto 
+WHERE kalahavainto.kalaid = laji 
+ORDER BY pituus DESC 
+LIMIT 1; 
+RETURN (pisin); 
+ 
+END$$ 
+DELIMITER ; 
+ 
+MySQL-event joka päivittää kerran päivässä (keskiyöllä) taulun jossa on listattu pisin havaittu yksilö: 
+=====
+DELIMITER $$ 
+CREATE EVENT PaivitaPituudet 
+ON SCHEDULE 
+EVERY 1 DAY 
+STARTS (TIMESTAMP(CURRENT_DATE)) 
+DO 
+BEGIN 
+DECLARE i INT DEFAULT 1; 
+DECLARE kalanro, verror INT DEFAULT 0; 
+SET kalanro = (SELECT COUNT(*) FROM kala); 
+ 
+WHILE i < kalanro DO 
+ UPDATE PisimmatKalat 
+ SET pituus = getLongestFish(i) 
+ WHERE laji = i; 
+ SET i = i + 1; 
+END WHILE; 
+END$$ 
+DELIMITER ; 
+ 
+Funktio joka hakee käyttäjän vuoden aikana havaitsemien kalojen pituuksien summan: 
+=====
+CREATE FUNCTION getFishSum(user INT, vuosi YEAR) 
+RETURNS INT DETERMINISTIC 
+BEGIN 
+ DECLARE tulos INT DEFAULT 0; 
+ SELECT SUM(pituus) AS pituus INTO tulos 
+ FROM kalahavainto AS k 
+ WHERE havaitsija = user AND vuosi = YEAR(paivamaara); 
+ RETURN(tulos); 
+END 
