@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lib.Operations;
 
 public class SQLOperations {
 
@@ -265,6 +266,28 @@ public class SQLOperations {
 		}
 	}
 
+        /**
+         * Poistaa kayttajan tietokannasta
+         * Palauttaa onnistuiko poisto
+         * 
+         * @param user, joka poistetaan
+         * @param deleteUser
+         * @return onnistuiko poisto
+         */
+        public static boolean removeUser(Kayttaja user, PreparedStatement deleteUser){
+            try {
+                deleteUser.setString(1, user.getNimi());
+                deleteUser.setString(2, user.getSalasana());
+                int i=deleteUser.executeUpdate();
+                if(i==1){
+                    return true;
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return false;
+        }
+        
 	/**
 	 * Poistaa käyttäjän tietokannasta
 	 * @param user
@@ -750,17 +773,22 @@ public class SQLOperations {
 	}
     /**
     * Palauttaa vuodenpinnat aikajarjestyksessa
+    * Voidaan hakea eko tai spondepinnoja tai kaikkia
     * @param user
     * @param vuosi
+    * @param eko: true jos vain ekopinnoja
+    * @param sponde: true jos vain spondepinnoja 
     * @param preparedGetVuodarit
-     * @param preparedBirdNameSearch
+    * @param preparedBirdNameSearch
     * @return vuodenpinnat lintulistassa
     */
-    public static ArrayList<Lintu> getVuodarit(Kayttaja user, int vuosi, PreparedStatement preparedGetVuodarit, PreparedStatement preparedBirdNameSearch) {
+    public static ArrayList<Lintu> getVuodarit(Kayttaja user, int vuosi, boolean eko, boolean sponde, PreparedStatement preparedGetVuodarit, PreparedStatement preparedBirdNameSearch) {
         ArrayList<Lintu> vuodarilista=new ArrayList<>();
         try {
                 preparedGetVuodarit.setInt(1, user.getId());
                 preparedGetVuodarit.setInt(2, vuosi);
+                preparedGetVuodarit.setInt(3, eko?1:0);
+                preparedGetVuodarit.setInt(4, sponde?1:0);
             try (ResultSet rs = preparedGetVuodarit.executeQuery()) {
                 while(rs.next()){
                     vuodarilista.add(new Lintu(getBirdNameById(rs.getInt("lintuid"), preparedBirdNameSearch)));
@@ -771,5 +799,69 @@ public class SQLOperations {
                 Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
             }
             return null;
+    }
+    
+    /**
+     * Palauttaa lintuhavaintolistan annetun kuukauden lajihavainnoista
+     * Palautetaan vain yksi havainto per laji
+     * Listan pituus on siis kuukausipinnojen maara
+     * 
+     * @param user kayttaja, jonka havaintoja haetaan
+     * @param year vuosi, jonka kuukausi
+     * @param month kuukausi, jolta haetaan
+     * @param eko, haetaanko vain ekopinnoja
+     * @param sponde, haetaanko vain spondepinnoja
+     * @param monthWatchSearch kuukausipinnojen SQL-kysely
+     * @return lista pinnakelpoisista havainnoista
+     */
+    public static ArrayList<Lintuhavainto> getMonthBirdWatches(Kayttaja user, 
+            int year, int month, boolean eko, boolean sponde,
+            PreparedStatement monthWatchSearch){
+        try{
+            monthWatchSearch.setInt(1, user.getId());
+            monthWatchSearch.setInt(2, year);
+            monthWatchSearch.setInt(3, month);
+            monthWatchSearch.setInt(4, eko?1:0);
+            monthWatchSearch.setInt(5, sponde?1:0);
+            ResultSet rs=monthWatchSearch.executeQuery();
+            ArrayList<Lintuhavainto> birdWatchArray=Operations.wholeRStoLintuHavainto(rs);
+            birdWatchArray=Operations.birdWatchArrayToDistinct(birdWatchArray);
+            return birdWatchArray;
+        }catch (SQLException ex){
+            Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    /**
+     * Palauttaa listan pinnahavainnoista annetulta paivalta
+     * Houm! kaikilta vuosilta (paivapinnailun tapa)
+     * Vain yksi havainto per laji
+     * 
+     * @param user
+     * @param month
+     * @param day
+     * @param eko haetaanko vain ekopinnat
+     * @param sponde haetaanko vain spondepinnat
+     * @param dayWatchSearch
+     * @return lista pinnahavainnoista
+     */
+    public static ArrayList<Lintuhavainto> getDayBirdWatches(Kayttaja user, 
+            int month, int day, boolean eko, boolean sponde,
+            PreparedStatement dayWatchSearch){
+        try{
+            dayWatchSearch.setInt(1, user.getId());
+            dayWatchSearch.setInt(2, month);
+            dayWatchSearch.setInt(3, day);
+            dayWatchSearch.setInt(4, eko?1:0);
+            dayWatchSearch.setInt(5, sponde?1:0);
+            ResultSet rs=dayWatchSearch.executeQuery();
+            ArrayList<Lintuhavainto> birdWatchArray=Operations.wholeRStoLintuHavainto(rs);
+            birdWatchArray=Operations.birdWatchArrayToDistinct(birdWatchArray);
+            return birdWatchArray;
+        }catch (SQLException ex){
+            Logger.getLogger(SQLOperations.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }
