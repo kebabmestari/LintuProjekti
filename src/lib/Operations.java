@@ -15,6 +15,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 public class Operations {
     
@@ -251,5 +252,23 @@ public class Operations {
         System.err.println("SQL-kyselyä ei voitu lukea");
         return "";
     }
+    
+        /**
+	 * Onko akkosellinen merkkijono
+	 * @param s, tutkittava merkkijono
+	 * @return sisältääkö vain aakkosia
+	 */
+	public static boolean isAlphabetic(String s){
+            return Pattern.matches("[a-öA-Ö]+", s);
+	}
+	/**
+	 * Onko annettu merkkijono akkosnumeerinen
+	 * @param s
+	 * @return onko aakkosnumeerinen
+	 */
+	public static boolean isAlphaNumeric(String s){
+            return Pattern.matches("[a-öA-Ö0-9]+", s);
+	}
+
             
 }

@@ -27,23 +27,6 @@ import lib.Operations;
 public class SQLOperations {
 
 	/**
-	 * Onko akkosellinen merkkijono
-	 * @param s, tutkittava merkkijono
-	 * @return sisältääkö vain aakkosia
-	 */
-	public static boolean isAlphabetic(String s){
-            return Pattern.matches("[a-öA-Ö]+", s);
-	}
-	/**
-	 * Onko annettu merkkijono akkosnumeerinen
-	 * @param s
-	 * @return onko aakkosnumeerinen
-	 */
-	public static boolean isAlphaNumeric(String s){
-            return Pattern.matches("[a-öA-Ö0-9]+", s);
-	}
-
-	/**
 	 * Etsii listan linnuista, jotka alkavat ennetulla merkkijonolla
 	 * @param wordBegin
 	 * @param pstm
@@ -79,13 +62,13 @@ public class SQLOperations {
 	/**
 	 * Palauttaa linnun id:n
 	 * @param bird
-	 * @param con
+	 * @param birdIdSearch 
 	 * @return Linnun id
 	 */
-	public static int searchBirdId(String bird, PreparedStatement pstm){
+	public static int searchBirdId(String bird, PreparedStatement birdIdSearch){
 		try {
-			pstm.setString(1, bird);
-			ResultSet rs=pstm.executeQuery();
+			birdIdSearch.setString(1, bird);
+			ResultSet rs=birdIdSearch.executeQuery();
 			if(rs.next()){
 				return rs.getInt("id");
 			}else{
@@ -177,23 +160,23 @@ public class SQLOperations {
 	/**
 	 * Etsii kalan nimen sen alkukirjaimen perusteella
 	 * Ennustavaa syöttöä varten
-	 * @param fishBegin
-	 * @param con
+	 * @param fishBegin nimen alkuosa
+	 * @param fishSearch 
 	 * @return ResultSet kaikista kaloista, jotka alkoivat annetulla merkkijonolla
 	 */
-	public static ArrayList<Kala> searchFish(String fishBegin, PreparedStatement pstm) {
+	public static ArrayList<Kala> searchFish(String fishBegin, PreparedStatement fishSearch) {
 		ArrayList<Kala> fishlist=new ArrayList<>();
 		try {
-			pstm.setString(1, fishBegin+"%");
+			fishSearch.setString(1, fishBegin+"%");
 			try {
-				ResultSet rs=pstm.executeQuery();
+				ResultSet rs=fishSearch.executeQuery();
 				while(rs.next()){
 					String fishName=rs.getString("nimi");
 					fishlist.add(new Kala(fishName));
 				}
 				return fishlist;
 			} catch (SQLException e) {
-				pstm.close();
+				fishSearch.close();
 				System.err.println("Kysely kaloista ei toiminut");
 				e.printStackTrace();
 				return null;
@@ -206,14 +189,14 @@ public class SQLOperations {
 	}
 	/**
 	 * Palauttaa kalan id:n
-	 * @param fish
-	 * @param con
+	 * @param fish koko nimi
+	 * @param fishIdSearch 
 	 * @return Kalan id tai -5 jos ei löydy tai -1 jos error
 	 */
-	public static int searchFishId(String fish, PreparedStatement pstm){
+	public static int searchFishId(String fish, PreparedStatement fishIdSearch){
 		try {
-			pstm.setString(1, fish);
-			ResultSet rs=pstm.executeQuery();
+			fishIdSearch.setString(1, fish);
+			ResultSet rs=fishIdSearch.executeQuery();
 			if(rs.next()){
 				return rs.getInt("id");
 			}else{
@@ -556,7 +539,7 @@ public class SQLOperations {
 	 * @param fishIndexCheck
 	 * @param fishMaxLengthId
 	 * @param deleteDuplicate
-	 * @return fongauksen indeksi int[0], kalojen lukum##r# int[1] ja pituuksien summa int[2]
+	 * @return fongauksen indeksi int[0], kalojen lukumaara int[1] ja pituuksien summa int[2]
 	 */
 	public static int[] getFongoIndex(Kayttaja user, int vuosi, PreparedStatement fishIndexSearch,
 			PreparedStatement fishIndexCheck, PreparedStatement fishMaxLengthId, PreparedStatement deleteDuplicate){
@@ -593,7 +576,7 @@ public class SQLOperations {
 	}
 
 	/**
-	 * Poistaa tietokannasta indeksin laskemista häiritsevät virheelliset monikot.
+	 * Poistaa tietokannasta indeksin laskemista hairitsevät virheelliset monikot.
 	 * Vain pisin lajin edustaja per vuosi per käyttäjä säilytetään (jos kaksi, niin uudempi).
 	 * @param kalaid poistettavan havainnon kalalajin id
 	 * @param user käyttäjä, jonka fongoja poistetaan
@@ -661,6 +644,7 @@ public class SQLOperations {
 	/**
 	 * Poistaa parametrina annetun id:n mukaisen kalahavinnon.
 	 * @param id kalahavainnon id
+         * @param user, jonka havainto
 	 * @param preparedFishCatchDeleteById
 	 * @return poistettujen rivien määrä tai -1 jos poikkeus
 	 */
@@ -676,7 +660,7 @@ public class SQLOperations {
 		}
 	}
 	/**
-	 * Palauttaa kalan nimen tai null jos fail
+	 * Palauttaa kalan nimen tai null jos poikkeus tai ei id:ta
 	 * @param kalaid
 	 * @param getFishName
 	 * @return kalan nimi tai null
