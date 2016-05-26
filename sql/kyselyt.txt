@@ -138,7 +138,7 @@ WHERE id = ?;
 SELECT DISTINCT lintuid 
 FROM lintuhavainto 
 WHERE havaitsija=? AND YEAR(paivamaara)=?
-AND eko>=? AND sponde>=?;
+AND eko>=? AND sponde>=?
 ORDER BY paivamaara;
 
 #Paivpinnojen haku
