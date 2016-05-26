@@ -129,7 +129,19 @@ SELECT havaitsija
 FROM lintuhavainto
 WHERE id = ?;
 
-#Päivpinnojen haku
+#Hakee havaitsijan kaikki vuodenpinnat pvm jarjestyksessa
+#Voidaan hakea ekopinnoja tai spondepinnoja
+#Jos eko/sponde=1 haetaan vain jos on eko/sponde
+#Jos eko/sponde=0 haetaan maareesta huolimatta
+#--------------------------
+>preparedGetVuodarit
+SELECT DISTINCT lintuid 
+FROM lintuhavainto 
+WHERE havaitsija=? AND YEAR(paivamaara)=?
+AND eko>=? AND sponde>=?;
+ORDER BY paivamaara;
+
+#Paivpinnojen haku
 #Jos haetaan ekopinnoja tai spondepinnoja laitetaan 1, muuten nolla
 #Nollalla tulee havainto riippumatta siitä, onko eko/sponde vai ei
 #--------------------------
@@ -169,7 +181,7 @@ WHERE id=?;
 ##KALAHAVAINNOT
 ################################
 
-#Hakee yksittäisen kalahavainnon tiedot
+#Hakee yksittaisen kalahavainnon tiedot
 #--------------------------
 >preparedFishCatchByID
 SELECT * FROM kalahavainto
