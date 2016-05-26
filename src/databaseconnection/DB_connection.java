@@ -444,7 +444,6 @@ public class DB_connection {
      * @return havainnon id
      */
     public int insertBirdWatch(Lintuhavainto birdWatch) {
-        System.out.println(birdWatch.getId() + " " + birdWatch.getHavaitsija() + " " + birdWatch.getLintuId() + " " + birdWatch.getPaikka() + " " + birdWatch.getHavaitsija());
         return SQLOperations.insertHavainto(birdWatch, con);
     }
 
@@ -580,7 +579,7 @@ public class DB_connection {
      * @return onnistuiko poisto
      */
     public boolean removeUser(Kayttaja user){
-        return false;
+        return SQLOperations.removeUser(user, deleteUser);
     }
 
     /**
@@ -677,15 +676,15 @@ public class DB_connection {
     }
 
     /**
-     * Palauttaa k#ytt#j#n lintuhavainnot annetulta v#lilt# JSON-muodossa
+     * Palauttaa kayttajan lintuhavainnot annetulta valilta JSON-muodossa
      *
      * @param alkuPaivamaara
      * @param loppuPaivamaara
      * @param user
+     * @return havinnot JSON-muodossa
      */
     public String getBirdWatchJSON(Paivamaara alkuPaivamaara, Paivamaara loppuPaivamaara, Kayttaja user) {
         ArrayList<Lintuhavainto> birdArray = SQLOperations.getBirdWatchData(alkuPaivamaara, loppuPaivamaara, user, preparedGetBirdWatchData);
-        System.out.println(birdArray.size());
         return Operations.arrayToJSON(birdArray, this);
     }
     
@@ -718,7 +717,6 @@ public class DB_connection {
         ArrayList<Lintuhavainto> birdWatch
                 =SQLOperations.getMonthBirdWatches(user, year, month,
                         eko, sponde, preparedMonthBirdWatchSearch);
-        System.out.println(Operations.arrayToJSON(birdWatch, this));
         return birdWatch; 
     }
     

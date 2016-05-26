@@ -32,12 +32,7 @@ public class SQLOperations {
 	 * @return sisältääkö vain aakkosia
 	 */
 	public static boolean isAlphabetic(String s){
-		if(Pattern.matches("[a-öA-Ö]+", s)){
-			return true;
-		}
-		else{
-			return false;
-		}
+            return Pattern.matches("[a-öA-Ö]+", s);
 	}
 	/**
 	 * Onko annettu merkkijono akkosnumeerinen
@@ -45,12 +40,7 @@ public class SQLOperations {
 	 * @return onko aakkosnumeerinen
 	 */
 	public static boolean isAlphaNumeric(String s){
-		if(Pattern.matches("[a-öA-Ö0-9]+", s)){
-			return true;
-		}
-		else{
-			return false;
-		}
+            return Pattern.matches("[a-öA-Ö0-9]+", s);
 	}
 
 	/**
@@ -485,7 +475,8 @@ public class SQLOperations {
 					String sql="INSERT INTO "+insertableArray.get(0).toInsertHeader()+" VALUES "+insertables+";";
 					System.out.println(sql);
 					Statement stm=con.createStatement();
-					stm.executeUpdate(sql);
+					int count=stm.executeUpdate(sql);
+                                        System.out.println("Added "+ count+ " rows");
 				} catch (SQLException e) {
 					System.out.println("SQL-ongelma yritettäessä lisätä tyyppiä "+insertableArray.get(0).getTableName());
 					e.printStackTrace();
@@ -621,7 +612,6 @@ public class SQLOperations {
 			ResultSet rs=fishMaxLengthId.executeQuery();
 			if(rs.next()){
 				int id=rs.getInt("k.id");
-				System.out.println(id);
 				deleteDuplicate.setInt(1, user.getId());
 				deleteDuplicate.setInt(2, kalaid);
 				deleteDuplicate.setInt(3, vuosi);

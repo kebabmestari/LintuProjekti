@@ -131,7 +131,7 @@ public class Operations {
     }
     
     public static String readQuery(String queryname, boolean debug) throws Exception{
-        System.out.println("Etsitään kysely " + queryname);
+       // System.out.println("Etsitään kysely " + queryname);
         File f = new File("sql/kyselyt.txt");
         if(!f.exists()){
             System.err.println("Tiedostoa kyselyt.txt ei löydy");
