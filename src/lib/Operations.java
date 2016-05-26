@@ -3,6 +3,7 @@ package lib;
 import java.util.ArrayList;
 
 import databaseconnection.DB_connection;
+import databaseobjects.Insertable;
 import databaseobjects.Json;
 import databaseobjects.Kalahavainto;
 import databaseobjects.Lintuhavainto;
@@ -36,6 +37,25 @@ public class Operations {
             }
             json+="\n]";
             return json;
+    }
+    
+    /**
+     * Muuttaa annetun listan tyypin Insertable mukaisesti, mikali alkuperainen
+     * tyyppi toteuttaa rajapinnan.
+     *
+     * @param array
+     * @return insertable array
+     */
+    public static ArrayList<Insertable> convertToInsertable(ArrayList<?> array) {
+        ArrayList<Insertable> insertableArray = new ArrayList<>();
+        try {
+            for (int i = 0; i < array.size(); i++) {
+                insertableArray.add((Insertable) array.get(i));
+            }
+            return insertableArray;
+        } catch (Exception e) {
+            return null;
+        }
     }
         
     /**
