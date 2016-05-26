@@ -89,6 +89,27 @@ public class Operations {
     }
     
     /**
+     * Muuntaa resultsetin kokonaan Lintuhavaintolistaksi
+     * @param rs Resultset joka saatu tietokannalta
+     * @return Lintuhavaintolista
+     */
+    public static ArrayList<Lintuhavainto> wholeRStoLintuHavainto(ResultSet rs){
+        ArrayList<Lintuhavainto> birdWatchArray=new ArrayList<>();
+        try{
+            while(rs.next()){
+                birdWatchArray.add(new Lintuhavainto(rs.getInt("lintuid"), rs.getString("paikka"),
+                        new Paivamaara(rs.getString("paivamaara")), rs.getInt("id"),
+                        rs.getInt("havaitsija"), rs.getBoolean("eko"), rs.getBoolean("sponde")));
+            }
+            return birdWatchArray;
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        System.err.println("Muuntaminen Lintuhavainto-objektiksi ei toiminut");
+        return null;
+    }
+    
+    /**
      * Muuntaa resultsetin ensimmäisen jäsenen Kalahavainto-objektiksi
      * @param rs Resultset joka saatu tietokannalta
      * @return Kalahavainto-objekti
@@ -126,6 +147,34 @@ public class Operations {
         }
         
         throw new Exception("Virhe tiedostonluvussa");
+    }
+    
+    /**
+     * Palauttaa uuden lintuhavaintolistan,
+     * jossa on vain kunkin lajin ensimmainen havainto
+     * Saman lajin duplikaatit ignoorataan
+     * @param birdWatchArray
+     * @return Lintuhavaintolista, jossa ei esiiny samaa lajia kahteen kertaan
+     */
+    public static ArrayList<Lintuhavainto> birdWatchArrayToDistinct(ArrayList<Lintuhavainto> birdWatchArray) {
+        ArrayList<Lintuhavainto> distinct=new ArrayList<>();
+        ArrayList<Integer> birdIdArray=new ArrayList<>();
+        boolean olluJo;
+        for(int i=0;i<birdWatchArray.size();i++){
+            Lintuhavainto birdWatch=birdWatchArray.get(i);
+            olluJo=false;
+            for(int id:birdIdArray){
+                if(birdWatch.getLintuId()==id){
+                    olluJo=true;
+                    break;
+                }
+            }
+            if(!olluJo){
+                distinct.add(birdWatch);
+                birdIdArray.add(birdWatch.getLintuId());
+            }
+        }
+        return distinct;
     }
 
     private static boolean scrollPastLine(BufferedReader cin, String line, boolean debug){

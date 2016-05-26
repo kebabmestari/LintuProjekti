@@ -25,13 +25,13 @@ import java.sql.Statement;
 
 public class DB_connection {
     private final String DB_URI;
-    private final String user; 				//"root"
-    private final String password;			//"mysli"
+    private final String user;
+    private final String password;
 
     private Connection con = null;
 
     /**
-     * K#ytt#j#n
+     * Kayttajan
      */
     private PreparedStatement insertUser = null;
     private PreparedStatement getUserId = null;
@@ -53,6 +53,8 @@ public class DB_connection {
     private PreparedStatement preparedBirdWatchDeleteById = null;
     private PreparedStatement preparedBirdWatchGetUser = null;
     private PreparedStatement preparedGetVuodarit=null;
+    private PreparedStatement preparedDayBirdWatchSearch=null;
+    private PreparedStatement preparedMonthBirdWatchSearch=null;
 
     /**
      * Kalan
@@ -63,7 +65,7 @@ public class DB_connection {
     private PreparedStatement preparedGetFishPics = null;
 
     /**
-     * Kalahavainnon preparaatit
+     * Kalahavainnon
      */
     private PreparedStatement preparedFishCatchByID = null;
     private PreparedStatement preparedFishCatchDataSearch = null;
@@ -75,6 +77,9 @@ public class DB_connection {
     private PreparedStatement preparedFishCatchDeleteById = null;
     private PreparedStatement preparedFishCatchGetUser = null;
 
+    /**
+     * Kunnan
+     */
     private PreparedStatement preparedTownSearch = null;
 
     public DB_connection(String host, String db_name, String user, String password) {
@@ -84,7 +89,7 @@ public class DB_connection {
         this.password = password;
 
         if (!createConnection()) {
-            System.err.println("Yhteytt# ei voitu muodostaa");
+            System.err.println("Yhteytta ei voitu muodostaa");
             //TODO Mit# sitten?
         }
     }
@@ -98,15 +103,6 @@ public class DB_connection {
         return (con != null);
     }
 
-    /**
-     * Poista ehdottomasti, kun kaikki toimii!!!!!!! Vain testausta varten
-     *
-     * @return
-     */
-    public Connection getConnection() {
-        //TODO poista kun kaikki toimii
-        return con;
-    }
 
     /**
      * Luodaan yhteysolio tietokantaan sekä luetaan ja valmistellaan kyselyt
@@ -202,7 +198,13 @@ public class DB_connection {
             
             preparedGetVuodarit
                     = con.prepareStatement(Operations.readQuery("preparedGetVuodarit"));
-
+            
+            preparedDayBirdWatchSearch
+                    =con.prepareStatement(Operations.readQuery("preparedDayBirdWatchSearch"));
+            
+            preparedMonthBirdWatchSearch
+                    =con.prepareStatement(Operations.readQuery("preparedMonthBirdWatchSearch"));
+            
             return true;
 
         } catch (ClassNotFoundException | SQLException e) {
@@ -569,6 +571,17 @@ public class DB_connection {
     public void removeUser(String username) {
         SQLOperations.removeUser(username, con, deleteUser);
     }
+    
+    /**
+     * Poistaa parametrina annetun kayttajan
+     * Palauttaa onnistuiko poisto
+     * 
+     * @param user 
+     * @return onnistuiko poisto
+     */
+    public boolean removeUser(Kayttaja user){
+        return false;
+    }
 
     /**
      * Lis## parametrina annetun kunnan, mik#li sit# ei viel# ole tietokannassa
@@ -677,14 +690,51 @@ public class DB_connection {
     }
     
     /**
-     * Hakee vuodarit eli vuodenpinnat
+     * Hakee kaikki vuodarit eli vuodenpinnat
      * @param user Käyttäjä kenen havainnot haetaan
      * @param vuosi Miltä vuodelta
      * @return 
      */
     public int getVuodarit(Kayttaja user, int vuosi){
         ArrayList<Lintu> vuodarit=
-         SQLOperations.getVuodarit(user, vuosi, preparedGetVuodarit, preparedBirdNameSearch);
+         SQLOperations.getVuodarit(user, vuosi, false, false, preparedGetVuodarit, preparedBirdNameSearch);
         return vuodarit.size();
     } 
+    
+    /**
+     * Plauttaa lintuavavaintolistan annetun kuukauden lajihavainnoista
+     * Palautetaan vain yksi havainto per laji
+     * Listan pituus on siis kuukausipinnojen maara
+     * 
+     * @param user kayttaja, jonka havaintoja haetaan
+     * @param year vuosi, jonka kuukausi
+     * @param month kuukausi, jolta haetaan
+     * @param eko, haetaanko vain ekopinnoja
+     * @param sponde, haetaanko vain spondepinnoja
+     * @return lista pinnakelpoisista havainnoista
+     */
+    public ArrayList<Lintuhavainto> getMonthBirdWatches(Kayttaja user, int year, int month,
+            boolean eko, boolean sponde){
+        ArrayList<Lintuhavainto> birdWatch
+                =SQLOperations.getMonthBirdWatches(user, year, month,
+                        eko, sponde, preparedMonthBirdWatchSearch);
+        System.out.println(Operations.arrayToJSON(birdWatch, this));
+        return birdWatch; 
+    }
+    
+    /**
+     * Palauttaa listan pinnahavainnoista annetulta paivalta
+     * Houm! kaikilta vuosilta (paivapinnailun tapa)
+     * Vain yksi havainto per laji
+     * 
+     * @param user
+     * @param month
+     * @param day
+     * @param eko haetaanko vain ekopinnat
+     * @param sponde haetaanko vain spondepinnat
+     * @return lista pinnahavainnoista
+     */
+    public ArrayList<Lintuhavainto> getDayBirdWatches(Kayttaja user, int month, int day, boolean eko, boolean sponde){
+        return SQLOperations.getDayBirdWatches(user, month, day, eko, sponde, preparedDayBirdWatchSearch);
+    }
 }
