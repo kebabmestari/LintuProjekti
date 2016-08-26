@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>Koordinaatit maakunnaksi</title>
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    </head>
+    <body>
+
+        <div id='content'>
+            <input type='text' name="lat" id='lat'/>
+            <input type="text" name="long" id='long'/>
+            <div id='button' onclick="find()">
+                Etsi maakunta
+            </div>
+            <p id='out'> Tähän tlanne </p>
+            <p id='final'> Maakunta on </p>
+        </div>
+<!--         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5IiE-MFos7eKuhT3rsF86_usbzz6SYZQ&libraries=geometry" async defer></script> -->
+         <script>
+           var maakunnat;
+           var lat,log;
+           getMaakunnat();
+           var out = document.getElementById('out');
+
+           function checkLockation(bbox) {
+                return (log >= bbox[1] && log <= bbox[3] && lat >= bbox[0] && lat <= bbox[2]);
+           }
+
+           function find(e){
+                lat = document.getElementById('lat').value;
+                log = document.getElementById('long').value;
+                out.innerHTML=[lat,log];
+           } 
+           function getMaakunnat(){
+                var xhr=new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        out.innerHTML = "vastaus tuli";
+                        maakunnat=JSON.parse(xhr.responseText);
+                    }
+                };
+                xhr.open("GET", "maakunnat.geojson", true);
+                xhr.send();
+            }
+        </script>
+    </body>
+</html>
